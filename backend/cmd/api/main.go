@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/aprimr/myvault/internal/database"
 	"github.com/aprimr/myvault/internal/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -19,6 +20,9 @@ func main() {
 
 	// Init logger
 	logger.Init(os.Getenv("APP_ENV"))
+
+	// Connect dbURL
+	database.Connect()
 
 	// Create chi router
 	r := chi.NewRouter()
