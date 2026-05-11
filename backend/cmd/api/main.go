@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aprimr/myvault/internal/logger"
+	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
 
@@ -19,12 +20,13 @@ func main() {
 	// Init logger
 	logger.Init(os.Getenv("APP_ENV"))
 
-	mux := http.NewServeMux()
+	// Create chi router
+	r := chi.NewRouter()
 
 	// Spin up server
 	port := ":" + os.Getenv("PORT")
 	logger.Info("Server started at PORT" + port)
-	err = http.ListenAndServe(port, mux)
+	err = http.ListenAndServe(port, r)
 	if err != nil {
 		logger.Fatal("Failed to start server", err)
 	}
