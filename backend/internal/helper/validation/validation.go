@@ -28,7 +28,7 @@ func Email(email string) error {
 // - at least 1 letter
 func Password(password string) error {
 	if len(password) < 8 {
-		return errors.New("password must be at least 8 characters long")
+		return errors.New("Password must be at least 8 characters long")
 	}
 
 	var hasDigit, hasLetter, hasSpecial bool
@@ -45,13 +45,13 @@ func Password(password string) error {
 	}
 
 	if !hasDigit {
-		return errors.New("password must contain at least one number")
+		return errors.New("Password must contain at least one number")
 	}
 	if !hasLetter {
-		return errors.New("password must contain at least one letter")
+		return errors.New("Password must contain at least one letter")
 	}
 	if !hasSpecial {
-		return errors.New("password must contain at least one special character")
+		return errors.New("Password must contain at least one special character")
 	}
 
 	return nil

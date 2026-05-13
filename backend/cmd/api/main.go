@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aprimr/myvault/internal/database"
+	"github.com/aprimr/myvault/internal/handler"
 	"github.com/aprimr/myvault/internal/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -26,6 +27,18 @@ func main() {
 
 	// Create chi router
 	r := chi.NewRouter()
+
+	authHandler := handler.NewAuthHandler() // authHandler
+
+	// Routes
+	r.Route("/api", func(r chi.Router) {
+
+		// auth
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/signup", authHandler.HandleSignup)
+		})
+
+	})
 
 	// Spin up server
 	port := ":" + os.Getenv("PORT")
