@@ -3,6 +3,7 @@ package validation
 import (
 	"errors"
 	"regexp"
+	"strings"
 	"unicode"
 )
 
@@ -13,6 +14,10 @@ import (
 func Email(email string) error {
 	// Regex for email
 	re := regexp.MustCompile(`^[A-Za-z0-9._%+\-]{3,}@[A-Za-z0-9\-]{2,}\.[A-Za-z]{2,}$`)
+
+	if strings.TrimSpace(email) == "" {
+		return errors.New("Email is required")
+	}
 
 	if !re.MatchString(email) {
 		return errors.New("Invalid email format")
@@ -27,6 +32,11 @@ func Email(email string) error {
 // - at least 1 special character
 // - at least 1 letter
 func Password(password string) error {
+
+	if strings.TrimSpace(password) == "" {
+		return errors.New("Password is required")
+	}
+
 	if len(password) < 8 {
 		return errors.New("Password must be at least 8 characters long")
 	}
