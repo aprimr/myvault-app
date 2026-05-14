@@ -4,13 +4,22 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/helper/username"
 	"github.com/aprimr/myvault/internal/repository"
 	"github.com/aprimr/myvault/internal/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func Signup(ctx context.Context, db *pgxpool.Pool, email, password, name string) error {
+func Signup(ctx context.Context, db *pgxpool.Pool, email, password, name string) (string, error) {
+	// Check if email already exists
+	exists, err := repository.IsEmailTaken(ctx, db, email)
+	if err != nil {
+		return "", err
+	}
+	if exists == true {
+		return "", fmt.Errorf("email already exists")
+	}
 
 	var genUsername string
 
@@ -22,7 +31,7 @@ func Signup(ctx context.Context, db *pgxpool.Pool, email, password, name string)
 
 		exists, err := repository.IsUsernameTaken(ctx, db, genUsername)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		if !exists {
@@ -33,14 +42,34 @@ func Signup(ctx context.Context, db *pgxpool.Pool, email, password, name string)
 	// Hash password
 	hash, err := util.HashPassword(password)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Call repository
-	err = repository.CreateUser(ctx, db, genUsername, email, hash, name)
+	uid, err := repository.CreateUser(ctx, db, genUsername, email, hash, name)
 	if err != nil {
-		return fmt.Errorf("Failed to create user profile %v", err)
+		return "", fmt.Errorf("Failed to create user profile %v", err)
 	}
 
-	return nil
+	return uid, nil
+}
+
+func GenerateAndStoreOTP(ctx context.Context, db *pgxpool.Pool, uid string) (string, error) {
+	// Generate OTP
+	purpose := constants.OTPPurposeRegister
+	otp, err := util.GenerateOTP()
+	if err != nil {
+		return "", err
+	}
+
+	// Hash OPT
+	hashedOTP := util.HashOTP(otp)
+
+	// Call repository
+	err = repository.StoreOTP(ctx, db, uid, hashedOTP, purpose)
+	if err != nil {
+		return "", err
+	}
+
+	return otp, nil
 }

@@ -1,20 +1,18 @@
 package util
 
 import (
-	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 )
 
-var otpSecret = []byte("your-secret-key")
-
 func HashOTP(otp string) string {
-	h := hmac.New(sha256.New, otpSecret)
-	h.Write([]byte(otp))
-	return hex.EncodeToString(h.Sum(nil))
+	hash := sha256.Sum256([]byte(otp))
+
+	return hex.EncodeToString(hash[:])
 }
 
-func CompareOTP(hashedOTP, inputOTP string) bool {
+func CompareHashOTP(inputOTP, hashedOTP string) bool {
 	inputHash := HashOTP(inputOTP)
-	return hmac.Equal([]byte(hashedOTP), []byte(inputHash))
+
+	return inputHash == hashedOTP
 }

@@ -14,7 +14,7 @@ var env string
 func Init(environment string) {
 	env = environment
 
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	log.SetFlags(log.Ldate | log.Ltime)
 }
 
 func Info(message string) {
