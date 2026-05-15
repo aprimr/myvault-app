@@ -2,6 +2,7 @@ package validation
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
@@ -62,6 +63,16 @@ func Password(password string) error {
 	}
 	if !hasSpecial {
 		return errors.New("Password must contain at least one special character")
+	}
+
+	return nil
+}
+
+// validation.EmptyString checks:
+// - if given string is empty
+func EmptyString(str string) error {
+	if strings.TrimSpace(str) == "" {
+		return fmt.Errorf("String is required")
 	}
 
 	return nil
