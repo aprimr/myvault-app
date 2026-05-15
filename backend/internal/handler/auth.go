@@ -76,5 +76,54 @@ func (h *AuthHandler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSON(w, http.StatusCreated, "User registered successfully", nil)
+	data := map[string]string{
+		"uid":   uid,
+		"email": req.Email,
+	}
+
+	response.JSON(w, http.StatusCreated, "User registered successfully", data)
+}
+
+func (h *AuthHandler) HandleVerifyOTP(w http.ResponseWriter, r *http.Request) {
+	var req dto.ValidateOTPRequest
+
+	// Decode JSON
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	// Validate data
+	if err := validation.EmptyString(req.OTP); err != nil {
+		response.Error(w, http.StatusBadRequest, "OTP is required")
+		return
+	}
+	if err := validation.EmptyString(req.Purpose); err != nil {
+		response.Error(w, http.StatusBadRequest, "Purpose is required")
+		return
+	}
+	if err := validation.EmptyString(req.Uid); err != nil {
+		response.Error(w, http.StatusBadRequest, "Uid is required")
+		return
+	}
+
+	// Call VerifyOTP service
+	err = service.VerifyOTP(r.Context(), database.DB, req.OTP, req.Purpose, req.Uid)
+	if err != nil {
+		logger.Error("VerifyOTP Service Error", err)
+		if err.Error() == "otp verification attempt limit exceed" {
+			response.Error(w, http.StatusTooManyRequests, "Too many attempts, please try again after 10 minutes")
+			return
+		}
+		if err.Error() == "invalid otp" {
+			response.Error(w, http.StatusBadRequest, "Invalid OTP")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "OTP verified successfully", nil)
+
 }

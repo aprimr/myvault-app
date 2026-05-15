@@ -45,6 +45,7 @@ func main() {
 		// auth
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/signup", authHandler.HandleSignup)
+			r.Post("/verify-otp", authHandler.HandleVerifyOTP)
 		})
 
 	})

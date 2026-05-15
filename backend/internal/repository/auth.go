@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -59,9 +60,18 @@ func IsUsernameTaken(ctx context.Context, db *pgxpool.Pool, username string) (bo
 	return false, err
 }
 
-func StoreOTP(ctx context.Context, db *pgxpool.Pool, uid, otpHash, purpose string) error {
-	query := "INSERT INTO otp_codes (uid, otp_hash, purpose ) VALUES($1, $2, $3)"
+func VerifyUser(ctx context.Context, db *pgxpool.Pool, uid string) error {
+	query := "UPDATE users SET is_verified=TRUE, updated_at=now() WHERE uid=$1"
 
-	_, err := db.Exec(ctx, query, uid, otpHash, purpose)
-	return err
+	cmdTag, err := db.Exec(ctx, query, uid)
+
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
 }

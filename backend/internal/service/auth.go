@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/helper/username"
 	"github.com/aprimr/myvault/internal/repository"
 	"github.com/aprimr/myvault/internal/util"
@@ -52,24 +51,4 @@ func Signup(ctx context.Context, db *pgxpool.Pool, email, password, name string)
 	}
 
 	return uid, nil
-}
-
-func GenerateAndStoreOTP(ctx context.Context, db *pgxpool.Pool, uid string) (string, error) {
-	// Generate OTP
-	purpose := constants.OTPPurposeRegister
-	otp, err := util.GenerateOTP()
-	if err != nil {
-		return "", err
-	}
-
-	// Hash OPT
-	hashedOTP := util.HashOTP(otp)
-
-	// Call repository
-	err = repository.StoreOTP(ctx, db, uid, hashedOTP, purpose)
-	if err != nil {
-		return "", err
-	}
-
-	return otp, nil
 }
