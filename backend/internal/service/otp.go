@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/repository"
 	"github.com/aprimr/myvault/internal/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GenerateAndStoreOTP(ctx context.Context, db *pgxpool.Pool, uid string) (string, error) {
+func GenerateAndStoreOTP(ctx context.Context, db *pgxpool.Pool, uid, purpose string) (string, error) {
 	// Generate OTP
-	purpose := constants.OTPPurposeRegister
 	otp, err := util.GenerateOTP()
 	if err != nil {
 		return "", err

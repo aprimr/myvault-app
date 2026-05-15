@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/database"
 	"github.com/aprimr/myvault/internal/dto"
 	"github.com/aprimr/myvault/internal/helper/response"
@@ -61,7 +62,8 @@ func (h *AuthHandler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call generate and store Otp service
-	otp, err := service.GenerateAndStoreOTP(r.Context(), database.DB, uid)
+	purpose := constants.OTPPurposeVerifyEmail
+	otp, err := service.GenerateAndStoreOTP(r.Context(), database.DB, uid, purpose)
 	if err != nil {
 		logger.Error("GenerateAndStoreOTP Service Error", err)
 		response.Error(w, http.StatusInternalServerError, "Failed to generate OTP")
