@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aprimr/myvault/internal/models"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -15,26 +14,24 @@ func StoreOTP(ctx context.Context, db *pgxpool.Pool, uid, otpHash, purpose strin
 	return err
 }
 
-func IncrementOTPAttempts(ctx context.Context, db *pgxpool.Pool, uid, purpose string) error {
-	query := "UPDATE otp_codes SET attempts=attempts+1 WHERE uid=$1 AND purpose=$2"
+func IncrementAndGetOTPAttempts(ctx context.Context, db *pgxpool.Pool, uid, purpose string) (int, error) {
+	var newAttempts int
 
-	cmdTag, err := db.Exec(ctx, query, uid, purpose)
+	query := "UPDATE otp_codes SET attempts=attempts+1 WHERE uid=$1 AND purpose=$2 RETURNING attempts"
+
+	err := db.QueryRow(ctx, query, uid, purpose).Scan(&newAttempts)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	if cmdTag.RowsAffected() == 0 {
-		return fmt.Errorf("otp not found")
-	}
-
-	return nil
+	return newAttempts, nil
 }
 
 func GetOTPByUid(ctx context.Context, db *pgxpool.Pool, uid, purpose string) (*models.OTP, error) {
 	var otpData models.OTP
 
-	query := "SELECT id, uid, otp_hash, purpose, expires_at, consumed, attempts, created_at FROM otp_codes WHERE uid=$1 AND purpose=$2 ORDER BY created_at DESC LIMIT 1"
+	query := "SELECT id, uid, otp_hash, purpose, expires_at, consumed, attempts, created_at FROM otp_codes WHERE uid=$1 AND purpose=$2 AND consumed=FALSE ORDER BY created_at DESC LIMIT 1"
 
 	err := db.QueryRow(ctx, query, uid, purpose).Scan(&otpData.Id, &otpData.Uid, &otpData.OTPHash, &otpData.Purpose, &otpData.ExpiresAt, &otpData.Consumed, &otpData.Attempts, &otpData.CreatedAt)
 
@@ -43,20 +40,4 @@ func GetOTPByUid(ctx context.Context, db *pgxpool.Pool, uid, purpose string) (*m
 	}
 
 	return &otpData, err
-}
-
-func MarkOTPConsumed(ctx context.Context, db *pgxpool.Pool, id string) error {
-	query := "UPDATE otp_codes SET consumed=TRUE WHERE id=$1 AND consumed=FALSE"
-
-	cmdTag, err := db.Exec(ctx, query, id)
-
-	if err != nil {
-		return err
-	}
-
-	if cmdTag.RowsAffected() == 0 {
-		return fmt.Errorf("otp not found")
-	}
-
-	return nil
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/aprimr/myvault/internal/repository"
 	"github.com/aprimr/myvault/internal/util"
@@ -29,21 +30,31 @@ func GenerateAndStoreOTP(ctx context.Context, db *pgxpool.Pool, uid, purpose str
 }
 
 func VerifyOTP(ctx context.Context, db *pgxpool.Pool, otp, purpose, uid string) error {
-	// Increment otp verification attempts
-	err := repository.IncrementOTPAttempts(ctx, db, uid, purpose)
-	if err != nil {
-		return err
-	}
-
 	// Get OTP from db
 	otpData, err := repository.GetOTPByUid(ctx, db, uid, purpose)
 	if err != nil {
 		return err
 	}
 
+	// Check if code is expired
+	if time.Now().After(otpData.ExpiresAt) {
+		return fmt.Errorf("otp expired")
+	}
+
 	// Check if attempt is greater than 10
 	// If so, return error
-	if otpData.Attempts > 10 {
+	if otpData.Attempts >= 10 {
+		return fmt.Errorf("otp verification attempt limit exceed")
+	}
+
+	// Increment otp verification attempts
+	newAttempts, err := repository.IncrementAndGetOTPAttempts(ctx, db, uid, purpose)
+	if err != nil {
+		return err
+	}
+
+	// Re-check after increment
+	if newAttempts > 10 {
 		return fmt.Errorf("otp verification attempt limit exceed")
 	}
 
@@ -53,13 +64,8 @@ func VerifyOTP(ctx context.Context, db *pgxpool.Pool, otp, purpose, uid string) 
 		return fmt.Errorf("invalid otp")
 	}
 
-	// if matched , mark user as verified And mark otp as consumed
-	err = repository.VerifyUser(ctx, db, uid)
-	if err != nil {
-		return err
-	}
-
-	err = repository.MarkOTPConsumed(ctx, db, otpData.Id)
+	// if matched , verify user and mark otp as consumed
+	err = repository.VerifyUserAndConsumeOTP(ctx, db, uid, otpData.Id)
 	if err != nil {
 		return err
 	}

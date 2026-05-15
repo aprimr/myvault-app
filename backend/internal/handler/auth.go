@@ -122,6 +122,10 @@ func (h *AuthHandler) HandleVerifyOTP(w http.ResponseWriter, r *http.Request) {
 			response.Error(w, http.StatusBadRequest, "Invalid OTP")
 			return
 		}
+		if err.Error() == "otp expired" {
+			response.Error(w, http.StatusBadRequest, "OTP expired")
+			return
+		}
 		response.Error(w, http.StatusInternalServerError, "Something went wrong")
 		return
 	}

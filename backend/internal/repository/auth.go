@@ -60,18 +60,27 @@ func IsUsernameTaken(ctx context.Context, db *pgxpool.Pool, username string) (bo
 	return false, err
 }
 
-func VerifyUser(ctx context.Context, db *pgxpool.Pool, uid string) error {
-	query := "UPDATE users SET is_verified=TRUE, updated_at=now() WHERE uid=$1"
+func VerifyUserAndConsumeOTP(ctx context.Context, db *pgxpool.Pool, uid, otpID string) error {
+	tx, err := db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
 
-	cmdTag, err := db.Exec(ctx, query, uid)
-
+	_, err = tx.Exec(ctx,
+		"UPDATE users SET is_verified=TRUE, updated_at=now() WHERE uid=$1", uid)
 	if err != nil {
 		return err
 	}
 
+	cmdTag, err := tx.Exec(ctx,
+		"UPDATE otp_codes SET consumed=TRUE WHERE id=$1 AND consumed=FALSE", otpID)
+	if err != nil {
+		return err
+	}
 	if cmdTag.RowsAffected() == 0 {
-		return fmt.Errorf("user not found")
+		return fmt.Errorf("otp already consumed")
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }
