@@ -71,12 +71,12 @@ func (h *AuthHandler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call mail service
-	err = mail.SendOTP(req.Name, req.Email, otp)
-	if err != nil {
-		logger.Error("Mail Service Error", err)
-		response.Error(w, http.StatusInternalServerError, "Failed to send OTP")
-		return
-	}
+	go func() {
+		err = mail.SendOTP(req.Name, req.Email, otp)
+		if err != nil {
+			logger.Error("Mail Service Error", err)
+		}
+	}()
 
 	data := map[string]string{
 		"uid":   uid,
