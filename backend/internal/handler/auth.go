@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/database"
@@ -15,10 +16,14 @@ import (
 	"github.com/aprimr/myvault/internal/service"
 )
 
-type AuthHandler struct{}
+type AuthHandler struct {
+	mailService *mail.Service
+}
 
-func NewAuthHandler() *AuthHandler {
-	return &AuthHandler{}
+func NewAuthHandler(mailService *mail.Service) *AuthHandler {
+	return &AuthHandler{
+		mailService: mailService,
+	}
 }
 
 func (h *AuthHandler) HandleSignup(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +77,7 @@ func (h *AuthHandler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 
 	// Call mail service
 	go func() {
-		err = mail.SendOTP(req.Name, req.Email, otp)
+		err = h.mailService.SendOTP(req.Name, req.Email, otp)
 		if err != nil {
 			logger.Error("Mail Service Error", err)
 		}
@@ -132,4 +137,59 @@ func (h *AuthHandler) HandleVerifyOTP(w http.ResponseWriter, r *http.Request) {
 
 	response.JSON(w, http.StatusOK, "OTP verified successfully", nil)
 
+}
+
+func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	var req dto.LoginRequest
+
+	// Decode JSON
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	// Validate data
+	if err := validation.Email(req.Email); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := validation.Password(req.Password); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Call login service
+	token, user, err := service.Login(r.Context(), database.DB, req.Email, req.Password)
+	if err != nil {
+		logger.Error("Login Service Error", err)
+		if err.Error() == "account is inactive" {
+			response.Error(w, http.StatusForbidden, "Account is inactive. Please contact support.")
+			return
+		}
+		if err.Error() == "account is not verified" {
+			response.Error(w, http.StatusForbidden, "Account not verified. Please verify your email.")
+			return
+		}
+		if err.Error() == "account deleted" {
+			response.Error(w, http.StatusNotFound, "Account deleted. Please contact support.")
+			return
+		}
+		if err.Error() == "invalid credentials" {
+			response.Error(w, http.StatusNotFound, "Invalid credentials")
+			return
+		}
+
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	// Call Mail Service
+	curTime := time.Now().Format("2006-01-02 15:04")
+	err = h.mailService.SendLoginAlert(user.Name, req.Email, curTime)
+	if err != nil {
+		logger.Error("Mail Service Error", err)
+	}
+
+	response.JSON(w, http.StatusOK, "Login successful", token)
 }

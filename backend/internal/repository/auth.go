@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/aprimr/myvault/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -20,6 +21,35 @@ func CreateUser(ctx context.Context, db *pgxpool.Pool, username, email, password
 	}
 
 	return uid, nil
+}
+
+func GetUserByEmail(ctx context.Context, db *pgxpool.Pool, email string) (*models.User, error) {
+	var user models.User
+
+	query := "SELECT uid, username, email, password, name, profile_url, is_active, is_verified, is_deleted, created_at, updated_at FROM users WHERE email=$1"
+
+	err := db.QueryRow(ctx, query, email).Scan(
+		&user.Uid,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.Name,
+		&user.ProfileUrl,
+		&user.IsActive,
+		&user.IsVerfied,
+		&user.IsDeleted,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, fmt.Errorf("invalid credentials")
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func IsEmailTaken(ctx context.Context, db *pgxpool.Pool, email string) (bool, error) {

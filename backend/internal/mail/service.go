@@ -3,45 +3,38 @@ package mail
 import (
 	"context"
 	"fmt"
-	"sync"
 
 	"github.com/aprimr/myvault/internal/config"
 	"github.com/wneessen/go-mail"
 )
 
-var (
-	client *mail.Client
-	from   string
-	mu     sync.Mutex
-)
-
-func Init(cfg config.MailConfig) error {
-	c, err := mail.NewClient(
-		cfg.Host,
-		mail.WithPort(cfg.Port),
-		mail.WithSMTPAuth(mail.SMTPAuthPlain),
-		mail.WithUsername(cfg.User),
-		mail.WithPassword(cfg.Password),
-		mail.WithTLSPolicy(mail.TLSOpportunistic),
-	)
-	if err != nil {
-		return err
-	}
-
-	// Open the connection once at startup and keep it alive
-	if err := c.DialWithContext(context.Background()); err != nil {
-		return fmt.Errorf("failed to connect to mail server: %w", err)
-	}
-
-	client = c
-	from = cfg.From
-	return nil
+type Service struct {
+	cfg  config.MailConfig
+	from string
 }
 
-func SendOTP(name, to, otp string) error {
+func New(cfg config.MailConfig) *Service {
+	return &Service{
+		cfg:  cfg,
+		from: cfg.From,
+	}
+}
+
+func (s *Service) newClient() (*mail.Client, error) {
+	return mail.NewClient(
+		s.cfg.Host,
+		mail.WithPort(s.cfg.Port),
+		mail.WithSMTPAuth(mail.SMTPAuthPlain),
+		mail.WithUsername(s.cfg.User),
+		mail.WithPassword(s.cfg.Password),
+		mail.WithTLSPolicy(mail.TLSOpportunistic),
+	)
+}
+
+func (s *Service) SendOTP(name, to, otp string) error {
 	msg := mail.NewMsg()
 
-	if err := msg.From(from); err != nil {
+	if err := msg.From(s.from); err != nil {
 		return err
 	}
 	if err := msg.To(to); err != nil {
@@ -51,8 +44,42 @@ func SendOTP(name, to, otp string) error {
 	msg.Subject("MyVault account verification")
 	msg.SetBodyString(mail.TypeTextHTML, buildOTPMailBody(name, otp))
 
-	mu.Lock()
-	defer mu.Unlock()
+	c, err := s.newClient()
+	if err != nil {
+		return err
+	}
 
-	return client.Send(msg)
+	if err := c.DialWithContext(context.Background()); err != nil {
+		return fmt.Errorf("smtp dial failed: %w", err)
+	}
+	defer c.Close()
+
+	return c.Send(msg)
+}
+
+func (s *Service) SendLoginAlert(name, to, loginTime string) error {
+	msg := mail.NewMsg()
+
+	if err := msg.From(s.from); err != nil {
+		return err
+	}
+
+	if err := msg.To(to); err != nil {
+		return err
+	}
+
+	msg.Subject("New login to your MyVault account")
+	msg.SetBodyString(mail.TypeTextHTML, buildLoginAlertMailBody(name, loginTime))
+
+	c, err := s.newClient()
+	if err != nil {
+		return err
+	}
+
+	if err := c.DialWithContext(context.Background()); err != nil {
+		return fmt.Errorf("smtp dial failed: %w", err)
+	}
+	defer c.Close()
+
+	return c.Send(msg)
 }

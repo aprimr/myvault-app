@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/aprimr/myvault/internal/config"
 	"github.com/aprimr/myvault/internal/database"
@@ -15,29 +17,34 @@ import (
 )
 
 func main() {
+
+	start := time.Now()
+
 	// Load env
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalln("Failed to load env")
 	}
+	fmt.Printf("Time to load env: %v \n", time.Since(start))
 
 	// Init logger
 	logger.Init(os.Getenv("APP_ENV"))
+	fmt.Printf("Time to init logger: %v \n", time.Since(start))
 
 	// Init mailer
 	mailCfg := config.LoadMailConfig()
-	err = mail.Init(mailCfg)
-	if err != nil {
-		logger.Fatal("Failed to initialize mailer", err)
-	}
+	mailService := mail.New(mailCfg)
+
+	fmt.Printf("Time to init mail: %v \n", time.Since(start))
 
 	// Connect DB
 	database.Connect()
+	fmt.Printf("Time to connect db: %v \n", time.Since(start))
 
 	// Create chi router
 	r := chi.NewRouter()
 
-	authHandler := handler.NewAuthHandler() // authHandler
+	authHandler := handler.NewAuthHandler(mailService) // authHandler
 
 	// Routes
 	r.Route("/api", func(r chi.Router) {
@@ -45,10 +52,12 @@ func main() {
 		// auth
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/signup", authHandler.HandleSignup)
+			r.Post("/login", authHandler.HandleLogin)
 			r.Post("/verify-otp", authHandler.HandleVerifyOTP)
 		})
 
 	})
+	fmt.Printf("Time to create new router and register routes: %v \n", time.Since(start))
 
 	// Spin up server
 	port := ":" + os.Getenv("PORT")
@@ -57,4 +66,5 @@ func main() {
 	if err != nil {
 		logger.Fatal("Failed to start server", err)
 	}
+	fmt.Printf("Time to spin up server: %v \n", time.Since(start))
 }
