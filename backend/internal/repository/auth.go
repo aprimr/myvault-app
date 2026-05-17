@@ -114,3 +114,18 @@ func VerifyUserAndConsumeOTP(ctx context.Context, db *pgxpool.Pool, uid, otpID s
 
 	return tx.Commit(ctx)
 }
+
+func UpdatePassword(ctx context.Context, db *pgxpool.Pool, uid, password string) error {
+	query := "UPDATE users SET password=$1, is_verified=TRUE, updated_at=now() WHERE uid=$2 AND is_active=TRUE AND is_deleted=FALSE "
+
+	cmdTag, err := db.Exec(ctx, query, password, uid)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("user inactive or deleted")
+	}
+
+	return nil
+}

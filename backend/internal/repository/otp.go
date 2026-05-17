@@ -41,3 +41,17 @@ func GetOTPByUid(ctx context.Context, db *pgxpool.Pool, uid, purpose string) (*m
 
 	return &otpData, err
 }
+
+func GetOTPByOTPID(ctx context.Context, db *pgxpool.Pool, otpId string) (*models.OTP, error) {
+	var otpData models.OTP
+
+	query := "SELECT id, uid, otp_hash, purpose, expires_at, consumed, attempts, created_at FROM otp_codes WHERE id=$1"
+
+	err := db.QueryRow(ctx, query, otpId).Scan(&otpData.Id, &otpData.Uid, &otpData.OTPHash, &otpData.Purpose, &otpData.ExpiresAt, &otpData.Consumed, &otpData.Attempts, &otpData.CreatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &otpData, err
+}

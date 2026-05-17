@@ -83,3 +83,30 @@ func (s *Service) SendLoginAlert(name, to, loginTime string) error {
 
 	return c.Send(msg)
 }
+
+func (s *Service) SendForgotPasswordOTP(name, to, otp string) error {
+	msg := mail.NewMsg()
+
+	if err := msg.From(s.from); err != nil {
+		return err
+	}
+
+	if err := msg.To(to); err != nil {
+		return err
+	}
+
+	msg.Subject("Reset your MyVault password")
+	msg.SetBodyString(mail.TypeTextHTML, buildForgotPasswordOTPMailBody(name, otp))
+
+	c, err := s.newClient()
+	if err != nil {
+		return err
+	}
+
+	if err := c.DialWithContext(context.Background()); err != nil {
+		return fmt.Errorf("smtp dial failed: %w", err)
+	}
+	defer c.Close()
+
+	return c.Send(msg)
+}

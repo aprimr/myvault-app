@@ -76,12 +76,10 @@ func (h *AuthHandler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call mail service
-	go func() {
-		err = h.mailService.SendOTP(req.Name, req.Email, otp)
-		if err != nil {
-			logger.Error("Mail Service Error", err)
-		}
-	}()
+	err = h.mailService.SendOTP(req.Name, req.Email, otp)
+	if err != nil {
+		logger.Error("Mail Service Error", err)
+	}
 
 	data := map[string]string{
 		"uid":   uid,
@@ -116,7 +114,7 @@ func (h *AuthHandler) HandleVerifyOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call VerifyOTP service
-	err = service.VerifyOTP(r.Context(), database.DB, req.OTP, req.Purpose, req.Uid)
+	otpId, err := service.VerifyOTP(r.Context(), database.DB, req.OTP, req.Purpose, req.Uid)
 	if err != nil {
 		logger.Error("VerifyOTP Service Error", err)
 		if err.Error() == "otp verification attempt limit exceed" {
@@ -135,7 +133,11 @@ func (h *AuthHandler) HandleVerifyOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSON(w, http.StatusOK, "OTP verified successfully", nil)
+	data := map[string]string{
+		"uid":    req.Uid,
+		"otp_id": otpId,
+	}
+	response.JSON(w, http.StatusOK, "OTP verified successfully", data)
 
 }
 
@@ -192,4 +194,77 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, "Login successful", token)
+}
+
+func (h *AuthHandler) HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var req dto.ForgotPasswordRequest
+	// Decode JSON
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		logger.Debug(err.Error())
+		response.Error(w, http.StatusBadRequest, "Ivalid request body")
+		return
+	}
+
+	// Validate data
+	if err := validation.Email(req.Email); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Call ForgotPassword service
+	otp, user, err := service.ForgotPassword(r.Context(), database.DB, req.Email)
+	if err != nil {
+		logger.Error("ForgotPassword Service Error", err)
+		if err.Error() == "invalid credentials" {
+			response.Error(w, http.StatusForbidden, "Incorrect email")
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+	}
+
+	// Call Mail service
+	err = h.mailService.SendForgotPasswordOTP(user.Name, req.Email, otp)
+	if err != nil {
+		logger.Error("Mail Service Error", err)
+	}
+
+	data := map[string]string{
+		"uid":   user.Uid,
+		"email": req.Email,
+	}
+
+	response.JSON(w, http.StatusOK, "Verification code sent", data)
+}
+
+func (h *AuthHandler) HandleSetNewPassword(w http.ResponseWriter, r *http.Request) {
+	var req dto.SetNewPasswordRequest
+
+	// Decode JSON
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	// Call service
+	err = service.SetNewPassword(r.Context(), database.DB, req.Uid, req.OtpId, req.Password)
+	if err != nil {
+		logger.Error("SetNewPassword Service", err)
+		if err.Error() == "otp not verified" {
+			response.Error(w, http.StatusBadRequest, "OTP is not verified")
+			return
+		}
+		if err.Error() == "password reset request timeout" {
+			response.Error(w, http.StatusRequestTimeout, "Password reset request timeout")
+			return
+		}
+		if err.Error() == "user inactive or deleted" {
+			response.Error(w, http.StatusBadRequest, "Account is inactive or deleted. Please contact support.")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Password reset successful", nil)
 }
