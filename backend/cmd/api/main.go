@@ -56,7 +56,6 @@ func main() {
 			r.Post("/verify-otp", authHandler.HandleVerifyOTP)
 			r.Post("/forgot-password", authHandler.HandleForgotPassword)
 			r.Post("/set-new-password", authHandler.HandleSetNewPassword)
-
 		})
 
 	})
