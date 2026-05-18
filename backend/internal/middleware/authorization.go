@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/helper/jwt"
 	"github.com/aprimr/myvault/internal/helper/response"
 )
@@ -33,8 +34,8 @@ func Authorization(next http.Handler) http.Handler {
 		}
 
 		// Send jwt with request
-		ctx := context.WithValue(r.Context(), "uid", jwtClaims.Uid)
-		ctx = context.WithValue(ctx, "email", jwtClaims.Email)
+		ctx := context.WithValue(r.Context(), constants.ContextUID, jwtClaims.Uid)
+		ctx = context.WithValue(ctx, constants.ContextEmail, jwtClaims.Email)
 
 		// Call next handler
 		next.ServeHTTP(w, r.WithContext(ctx))
