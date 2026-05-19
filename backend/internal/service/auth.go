@@ -68,7 +68,7 @@ func Login(ctx context.Context, db *pgxpool.Pool, email, password string) (strin
 	if !user.IsActive {
 		return "", nil, fmt.Errorf("account is inactive")
 	}
-	if !user.IsVerfied {
+	if !user.IsVerified {
 		return "", nil, fmt.Errorf("account is not verified")
 	}
 	if user.IsDeleted {
