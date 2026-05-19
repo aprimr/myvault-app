@@ -12,7 +12,7 @@ type User struct {
 	Name       string    `json:"name"`
 	ProfileUrl *string   `json:"profile_url"`
 	IsActive   bool      `json:"is_active"`
-	IsVerfied  bool      `json:"is_verified"`
+	IsVerified bool      `json:"is_verified"`
 	IsDeleted  bool      `json:"is_deleted"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`

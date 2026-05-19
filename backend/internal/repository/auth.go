@@ -36,7 +36,7 @@ func GetUserByEmail(ctx context.Context, db *pgxpool.Pool, email string) (*model
 		&user.Name,
 		&user.ProfileUrl,
 		&user.IsActive,
-		&user.IsVerfied,
+		&user.IsVerified,
 		&user.IsDeleted,
 		&user.CreatedAt,
 		&user.UpdatedAt,
