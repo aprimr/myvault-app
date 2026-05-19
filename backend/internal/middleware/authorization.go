@@ -31,6 +31,7 @@ func Authorization(next http.Handler) http.Handler {
 		jwtClaims, err := jwt.Validate(jwtToken)
 		if err != nil {
 			response.Error(w, http.StatusUnauthorized, "JWT token tampered")
+			return
 		}
 
 		// Send jwt with request

@@ -12,6 +12,7 @@ import (
 	"github.com/aprimr/myvault/internal/handler"
 	"github.com/aprimr/myvault/internal/logger"
 	"github.com/aprimr/myvault/internal/mail"
+	"github.com/aprimr/myvault/internal/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
@@ -45,17 +46,27 @@ func main() {
 	r := chi.NewRouter()
 
 	authHandler := handler.NewAuthHandler(mailService) // authHandler
+	profileHandler := handler.NewProfileHandler()      // profileHandler
 
 	// Routes
 	r.Route("/api", func(r chi.Router) {
 
-		// auth
+		// auth routes
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/signup", authHandler.HandleSignup)
 			r.Post("/login", authHandler.HandleLogin)
 			r.Post("/verify-otp", authHandler.HandleVerifyOTP)
 			r.Post("/forgot-password", authHandler.HandleForgotPassword)
 			r.Post("/set-new-password", authHandler.HandleSetNewPassword)
+		})
+
+		// Profile routes
+		// Protected routes
+		r.Group(func(r chi.Router) {
+			// use auth middleware
+			r.Use(middleware.Authorization)
+
+			r.Get("/me", profileHandler.GetProfileHandler)
 		})
 
 	})
