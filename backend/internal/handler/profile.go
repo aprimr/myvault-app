@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/database"
@@ -45,4 +46,54 @@ func (h *ProfileHandler) GetProfileHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	response.JSON(w, http.StatusOK, "Profile fetched successfully", user)
+}
+
+func (h *ProfileHandler) UpdateProfilePicHandler(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Parse multipart form
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "invalid multipart form")
+		return
+	}
+
+	// Get current profileUrl
+	currProfileUrl := r.FormValue("currprofileurl")
+
+	// Get file
+	file, header, err := r.FormFile("profilepic")
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "Profile pic is required")
+		return
+	}
+	defer file.Close()
+
+	// Validate file
+	contentType := header.Header.Get("Content-Type")
+	if !strings.HasPrefix(contentType, "image/") {
+		response.Error(w, http.StatusBadRequest, "Only images allowed")
+		return
+	}
+
+	// Check image file size
+	if header.Size > 5<<20 {
+		response.Error(w, http.StatusBadRequest, "File too large (max 5MB)")
+		return
+	}
+
+	// Call UpdateProfilePic Service
+	profileUrl, err := service.UpdateProfilePicHandler(r.Context(), database.DB, currProfileUrl, file, uid)
+	if err != nil {
+		logger.Error("UpdateProfilePic Service", err)
+		response.Error(w, http.StatusInternalServerError, "Failed to update profile pic")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Profile pic updated", profileUrl)
 }

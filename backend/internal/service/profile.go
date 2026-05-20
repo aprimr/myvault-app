@@ -3,9 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
+	"strings"
 
+	"github.com/aprimr/myvault/internal/logger"
 	"github.com/aprimr/myvault/internal/models"
 	"github.com/aprimr/myvault/internal/repository"
+	"github.com/aprimr/myvault/internal/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -32,4 +36,31 @@ func GetProfile(ctx context.Context, db *pgxpool.Pool, uid string) (*models.User
 	}
 
 	return user, nil
+}
+
+func UpdateProfilePicHandler(ctx context.Context, db *pgxpool.Pool, currProfileUrl string, file multipart.File, uid string) (string, error) {
+	// Upload image file in cloudinary
+	profileUrl, err := util.UploadImage(ctx, file, "profile_pic")
+	if err != nil {
+		logger.Error("Error uploading profile pic", err)
+		return "", fmt.Errorf("failed to update profileurl")
+	}
+
+	// Add cloudinary image url in database
+	err = repository.ChangeProfileUrl(ctx, db, uid, profileUrl)
+	if err != nil {
+		logger.Error("Error updating profile pic in db", err)
+		return "", fmt.Errorf("failed updating profileurl")
+	}
+
+	// if currProfileUrl is not empty, delete old profile image from cloudinary
+	if strings.TrimSpace(currProfileUrl) != "" {
+		err := util.DeleteImage(ctx, currProfileUrl)
+		if err != nil {
+			logger.Error("Error deleting profile pic", err)
+			return "", fmt.Errorf("failed to update profileurl")
+		}
+	}
+
+	return profileUrl, nil
 }

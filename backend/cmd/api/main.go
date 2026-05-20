@@ -13,6 +13,7 @@ import (
 	"github.com/aprimr/myvault/internal/logger"
 	"github.com/aprimr/myvault/internal/mail"
 	"github.com/aprimr/myvault/internal/middleware"
+	"github.com/aprimr/myvault/internal/util"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
@@ -35,8 +36,14 @@ func main() {
 	// Init mailer
 	mailCfg := config.LoadMailConfig()
 	mailService := mail.New(mailCfg)
-
 	fmt.Printf("Time to init mail: %v \n", time.Since(start))
+
+	// Init cloudinary
+	err = util.InitCloudinary()
+	if err != nil {
+		logger.Fatal("Failed to init cloudinary", err)
+	}
+	fmt.Printf("Time to init cloudinary: %v \n", time.Since(start))
 
 	// Connect DB
 	database.Connect()
@@ -67,6 +74,7 @@ func main() {
 			r.Use(middleware.Authorization)
 
 			r.Get("/me", profileHandler.GetProfileHandler)
+			r.Put("/me/photo", profileHandler.UpdateProfilePicHandler)
 		})
 
 	})

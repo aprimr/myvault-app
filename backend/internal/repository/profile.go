@@ -34,3 +34,17 @@ func GetProfileByUID(ctx context.Context, db *pgxpool.Pool, uid string) (*models
 
 	return &user, nil
 }
+
+func ChangeProfileUrl(ctx context.Context, db *pgxpool.Pool, uid, profileUrl string) error {
+	query := "UPDATE users SET profile_url=$1 WHERE uid=$2 AND is_verified=TRUE AND is_active=TRUE"
+
+	cmdTag, err := db.Exec(ctx, query, profileUrl, uid)
+	if err != nil {
+		if cmdTag.RowsAffected() == 0 {
+			return fmt.Errorf("failed updating profileurl")
+		}
+		return err
+	}
+
+	return nil
+}
