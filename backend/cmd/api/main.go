@@ -75,6 +75,7 @@ func main() {
 
 			r.Get("/me", profileHandler.GetProfileHandler)
 			r.Put("/me/photo", profileHandler.UpdateProfilePicHandler)
+			r.Delete("/me/photo", profileHandler.DeleteProfilePicHandler)
 		})
 
 	})

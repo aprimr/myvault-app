@@ -64,3 +64,28 @@ func UpdateProfilePicHandler(ctx context.Context, db *pgxpool.Pool, currProfileU
 
 	return profileUrl, nil
 }
+
+func DeleteProfilePic(ctx context.Context, db *pgxpool.Pool, uid string) error {
+	// Get profile_url by id
+	user, err := repository.GetProfileByUID(ctx, db, uid)
+	if err != nil {
+		return err
+	}
+	if user.ProfileUrl == "" {
+		return fmt.Errorf("profilepic not set")
+	}
+
+	// Remove profile_url from user
+	err = repository.DeleteProfileUrl(ctx, db, uid)
+	if err != nil {
+		return err
+	}
+
+	// Delete image from cloudinary
+	err = util.DeleteImage(ctx, user.ProfileUrl)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -97,3 +97,26 @@ func (h *ProfileHandler) UpdateProfilePicHandler(w http.ResponseWriter, r *http.
 
 	response.JSON(w, http.StatusOK, "Profile pic updated", profileUrl)
 }
+
+func (h *ProfileHandler) DeleteProfilePicHandler(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Call DeleteProfilePic Service
+	err := service.DeleteProfilePic(r.Context(), database.DB, uid)
+	if err != nil {
+		logger.Error("DeleteProfilePic Service", err)
+		if err.Error() == "profilepic not set" {
+			response.Error(w, http.StatusNotFound, "Profile pic not set")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Profile pic deleted", nil)
+}

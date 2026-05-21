@@ -48,3 +48,17 @@ func ChangeProfileUrl(ctx context.Context, db *pgxpool.Pool, uid, profileUrl str
 
 	return nil
 }
+
+func DeleteProfileUrl(ctx context.Context, db *pgxpool.Pool, uid string) error {
+	query := "UPDATE users SET profile_url='' WHERE uid=$1"
+
+	cmdTag, err := db.Exec(ctx, query, uid)
+	if err != nil {
+		if cmdTag.RowsAffected() == 0 {
+			return fmt.Errorf("failed deleting profileurl")
+		}
+		return err
+	}
+
+	return nil
+}
