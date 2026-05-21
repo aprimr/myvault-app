@@ -67,17 +67,20 @@ func main() {
 			r.Post("/set-new-password", authHandler.HandleSetNewPassword)
 		})
 
-		// Profile routes
 		// Protected routes
 		r.Group(func(r chi.Router) {
 			// use auth middleware
 			r.Use(middleware.Authorization)
 
+			// Profile routes
 			r.Get("/me", profileHandler.HandleGetProfile)
 			r.Put("/me", profileHandler.HandleUpdateProfile)
 			r.Put("/me/photo", profileHandler.HandleUpdateProfilePic)
 			r.Delete("/me/photo", profileHandler.HandleDeleteProfilePic)
+
+			// Settings
 			r.Put("/me/email", profileHandler.HandleChangeEmail)
+			r.Put("/me/password", profileHandler.HandleChangePassword)
 		})
 
 	})

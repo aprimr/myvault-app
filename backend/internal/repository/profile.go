@@ -10,13 +10,14 @@ import (
 )
 
 func GetProfileByUID(ctx context.Context, db *pgxpool.Pool, uid string) (*models.User, error) {
-	query := "SELECT uid, username, email, name, profile_url, is_active, is_verified, is_deleted, created_at, updated_at FROM users WHERE uid=$1"
+	query := "SELECT uid, username, email,password, name, profile_url, is_active, is_verified, is_deleted, created_at, updated_at FROM users WHERE uid=$1"
 
 	var user models.User
 	err := db.QueryRow(ctx, query, uid).Scan(
 		&user.Uid,
 		&user.Username,
 		&user.Email,
+		&user.Password,
 		&user.Name,
 		&user.ProfileUrl,
 		&user.IsActive,
@@ -103,6 +104,21 @@ func UpdateEmail(ctx context.Context, db *pgxpool.Pool, uid, newEmail string) er
 
 	if cmdTag.RowsAffected() == 0 {
 		return fmt.Errorf("failed to change email")
+	}
+
+	return nil
+}
+
+func ChangePassword(ctx context.Context, db *pgxpool.Pool, uid, passwordHash string) error {
+	query := "UPDATE users SET password=$1 WHERE uid=$2"
+
+	cmdTag, err := db.Exec(ctx, query, passwordHash, uid)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed to change password")
 	}
 
 	return nil

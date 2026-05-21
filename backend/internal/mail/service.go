@@ -164,3 +164,30 @@ func (s *Service) SendChangeEmailAlert(name, to, newEmail, time string) error {
 
 	return c.Send(msg)
 }
+
+func (s *Service) SendChangedPasswordAlert(name, to, time string) error {
+	msg := mail.NewMsg()
+
+	if err := msg.From(s.from); err != nil {
+		return err
+	}
+
+	if err := msg.To(to); err != nil {
+		return err
+	}
+
+	msg.Subject("Your password was changed")
+	msg.SetBodyString(mail.TypeTextHTML, buildChangedPasswordAlertMailBody(name, time))
+
+	c, err := s.newClient()
+	if err != nil {
+		return err
+	}
+
+	if err := c.DialWithContext(context.Background()); err != nil {
+		return fmt.Errorf("smtp dial failed: %w", err)
+	}
+	defer c.Close()
+
+	return c.Send(msg)
+}

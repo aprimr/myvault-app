@@ -221,3 +221,52 @@ func (h *ProfileHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Reques
 
 	response.JSON(w, http.StatusOK, "Email changed. Please verify it", nil)
 }
+
+func (h *ProfileHandler) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
+	var req dto.ChangePasswordRequest
+
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Parse request body
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	// Validate data
+	if req.Password == req.NewPassword {
+		response.Error(w, http.StatusBadRequest, "New passwords cannot be same as old password")
+		return
+	}
+	if req.NewPassword != req.ConfirmPassword {
+		response.Error(w, http.StatusBadRequest, "New passwords must match")
+		return
+	}
+	if err := validation.EmptyString(req.Password); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := validation.Password(req.Password); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Call ChangePassword service
+	err = service.ChangePassword(r.Context(), database.DB, h.mailService, uid, req.Password, req.NewPassword)
+	if err != nil {
+		if err.Error() == "incorrect password" {
+			response.Error(w, http.StatusBadRequest, "Incorrect password")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Password changed", nil)
+}

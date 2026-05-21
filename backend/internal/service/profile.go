@@ -177,3 +177,42 @@ func ChangeEmail(ctx context.Context, db *pgxpool.Pool, mailService *mail.Servic
 
 	return nil
 }
+
+func ChangePassword(ctx context.Context, db *pgxpool.Pool, mailService *mail.Service, uid, password, newPassword string) error {
+	// Get user
+	user, err := repository.GetProfileByUID(ctx, db, uid)
+	if err != nil {
+		logger.Error("Profile Service: Get user", err)
+		return err
+	}
+
+	// Compare password and password hash
+	match := util.CompareHash(password, user.Password)
+	if !match {
+		return fmt.Errorf("incorrect password")
+	}
+
+	// Hash new password
+	newPassHash, err := util.HashPassword(newPassword)
+	if err != nil {
+		logger.Error("Profile Service: Hash password", err)
+		return err
+	}
+
+	// Save newPasswordHash to db
+	err = repository.ChangePassword(ctx, db, uid, newPassHash)
+	if err != nil {
+		logger.Error("Profile Service: Change password", err)
+		return err
+	}
+
+	// Send mail
+	curTime := time.Now().Format("2006-01-02 15:04")
+	err = mailService.SendChangedPasswordAlert(user.Name, user.Email, curTime)
+	if err != nil {
+		logger.Error("Profile Service: Send mail", err)
+		return err
+	}
+
+	return nil
+}

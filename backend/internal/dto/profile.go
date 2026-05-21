@@ -8,3 +8,9 @@ type UpdateProfileRequest struct {
 type ChangeEmailRequest struct {
 	Email string `json:"email"`
 }
+
+type ChangePasswordRequest struct {
+	Password        string `json:"password"`
+	NewPassword     string `json:"new_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}
