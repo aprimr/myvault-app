@@ -68,6 +68,46 @@ func Password(password string) error {
 	return nil
 }
 
+// validation.Username checks:
+// - at least 7 characters
+// - only lowercase letters
+// - can contain numbers
+// - can contain . or _
+func Username(username string) error {
+
+	username = strings.TrimSpace(username)
+
+	if username == "" {
+		return errors.New("Username is required")
+	}
+
+	if len(username) < 7 {
+		return errors.New("Username must be at least 7 characters long")
+	}
+
+	for _, ch := range username {
+
+		// allow lowercase letters
+		if ch >= 'a' && ch <= 'z' {
+			continue
+		}
+
+		// allow numbers
+		if unicode.IsDigit(ch) {
+			continue
+		}
+
+		// allow dot and underscore
+		if ch == '.' || ch == '_' {
+			continue
+		}
+
+		return errors.New("Username can only contain lowercase letters, numbers, '.' and '_'")
+	}
+
+	return nil
+}
+
 // validation.EmptyString checks:
 // - if given string is empty
 func EmptyString(str string) error {
