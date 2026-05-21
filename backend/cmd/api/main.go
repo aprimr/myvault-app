@@ -74,6 +74,7 @@ func main() {
 			r.Use(middleware.Authorization)
 
 			r.Get("/me", profileHandler.GetProfileHandler)
+			r.Put("/me", profileHandler.UpdateProfileHandler)
 			r.Put("/me/photo", profileHandler.UpdateProfilePicHandler)
 			r.Delete("/me/photo", profileHandler.DeleteProfilePicHandler)
 		})

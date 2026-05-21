@@ -40,10 +40,10 @@ func ChangeProfileUrl(ctx context.Context, db *pgxpool.Pool, uid, profileUrl str
 
 	cmdTag, err := db.Exec(ctx, query, profileUrl, uid)
 	if err != nil {
-		if cmdTag.RowsAffected() == 0 {
-			return fmt.Errorf("failed updating profileurl")
-		}
 		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed updating profileurl")
 	}
 
 	return nil
@@ -54,10 +54,40 @@ func DeleteProfileUrl(ctx context.Context, db *pgxpool.Pool, uid string) error {
 
 	cmdTag, err := db.Exec(ctx, query, uid)
 	if err != nil {
-		if cmdTag.RowsAffected() == 0 {
-			return fmt.Errorf("failed deleting profileurl")
-		}
 		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed deleting profileurl")
+	}
+
+	return nil
+}
+
+func UpdateUsername(ctx context.Context, db *pgxpool.Pool, uid, username string) error {
+
+	query := "UPDATE users SET username=$1 WHERE uid=$2"
+
+	cmdTag, err := db.Exec(ctx, query, username, uid)
+	if err != nil {
+		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed to update username")
+	}
+
+	return nil
+}
+
+func UpdateName(ctx context.Context, db *pgxpool.Pool, uid, name string) error {
+
+	query := "UPDATE users SET name=$1 WHERE uid=$2"
+
+	cmdTag, err := db.Exec(ctx, query, name, uid)
+	if err != nil {
+		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed to update name")
 	}
 
 	return nil

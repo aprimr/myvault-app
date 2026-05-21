@@ -89,3 +89,35 @@ func DeleteProfilePic(ctx context.Context, db *pgxpool.Pool, uid string) error {
 
 	return nil
 }
+
+func UpdateProfile(ctx context.Context, db *pgxpool.Pool, uid string, username, name *string) error {
+	// if username is provided update it
+	if username != nil {
+		// Check if username is taken
+		taken, err := repository.IsUsernameTaken(ctx, db, *username)
+		if err != nil {
+			return err
+		}
+
+		if taken {
+			return fmt.Errorf("username is already taken")
+		}
+
+		// Update username in db
+		err = repository.UpdateUsername(ctx, db, uid, *username)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Update name if provided
+	if name != nil {
+		// Update name in db
+		err := repository.UpdateName(ctx, db, uid, *name)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
