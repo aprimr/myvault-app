@@ -21,7 +21,7 @@ func NewProfileHandler() *ProfileHandler {
 	return &ProfileHandler{}
 }
 
-func (h *ProfileHandler) GetProfileHandler(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileHandler) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 	// get uid from request context
 	uid, ok := r.Context().Value(constants.ContextUID).(string)
 	if !ok || uid == "" {
@@ -51,7 +51,7 @@ func (h *ProfileHandler) GetProfileHandler(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, "Profile fetched successfully", user)
 }
 
-func (h *ProfileHandler) UpdateProfilePicHandler(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileHandler) HandleUpdateProfilePic(w http.ResponseWriter, r *http.Request) {
 	// Get uid from request context
 	uid, ok := r.Context().Value(constants.ContextUID).(string)
 	if !ok || uid == "" {
@@ -101,7 +101,7 @@ func (h *ProfileHandler) UpdateProfilePicHandler(w http.ResponseWriter, r *http.
 	response.JSON(w, http.StatusOK, "Profile pic updated", profileUrl)
 }
 
-func (h *ProfileHandler) DeleteProfilePicHandler(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileHandler) HandleDeleteProfilePic(w http.ResponseWriter, r *http.Request) {
 	// Get uid from request context
 	uid, ok := r.Context().Value(constants.ContextUID).(string)
 	if !ok || uid == "" {
@@ -124,7 +124,7 @@ func (h *ProfileHandler) DeleteProfilePicHandler(w http.ResponseWriter, r *http.
 	response.JSON(w, http.StatusOK, "Profile pic deleted", nil)
 }
 
-func (h *ProfileHandler) UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileHandler) HandleUpdateProfile(w http.ResponseWriter, r *http.Request) {
 	var req dto.UpdateProfileRequest
 
 	// Get uid from request context

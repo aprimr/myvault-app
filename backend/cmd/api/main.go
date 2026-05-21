@@ -73,10 +73,10 @@ func main() {
 			// use auth middleware
 			r.Use(middleware.Authorization)
 
-			r.Get("/me", profileHandler.GetProfileHandler)
-			r.Put("/me", profileHandler.UpdateProfileHandler)
-			r.Put("/me/photo", profileHandler.UpdateProfilePicHandler)
-			r.Delete("/me/photo", profileHandler.DeleteProfilePicHandler)
+			r.Get("/me", profileHandler.HandleGetProfile)
+			r.Put("/me", profileHandler.HandleUpdateProfile)
+			r.Put("/me/photo", profileHandler.HandleUpdateProfilePic)
+			r.Delete("/me/photo", profileHandler.HandleDeleteProfilePic)
 		})
 
 	})
