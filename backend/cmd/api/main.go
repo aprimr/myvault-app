@@ -52,8 +52,8 @@ func main() {
 	// Create chi router
 	r := chi.NewRouter()
 
-	authHandler := handler.NewAuthHandler(mailService) // authHandler
-	profileHandler := handler.NewProfileHandler()      // profileHandler
+	authHandler := handler.NewAuthHandler(mailService)       // authHandler
+	profileHandler := handler.NewProfileHandler(mailService) // profileHandler
 
 	// Routes
 	r.Route("/api", func(r chi.Router) {
@@ -77,6 +77,7 @@ func main() {
 			r.Put("/me", profileHandler.HandleUpdateProfile)
 			r.Put("/me/photo", profileHandler.HandleUpdateProfilePic)
 			r.Delete("/me/photo", profileHandler.HandleDeleteProfilePic)
+			r.Put("/me/email", profileHandler.HandleChangeEmail)
 		})
 
 	})

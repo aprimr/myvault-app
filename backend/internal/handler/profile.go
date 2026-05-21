@@ -11,14 +11,18 @@ import (
 	"github.com/aprimr/myvault/internal/helper/response"
 	"github.com/aprimr/myvault/internal/helper/validation"
 	"github.com/aprimr/myvault/internal/logger"
+	"github.com/aprimr/myvault/internal/mail"
 	"github.com/aprimr/myvault/internal/service"
 )
 
 type ProfileHandler struct {
+	mailService *mail.Service
 }
 
-func NewProfileHandler() *ProfileHandler {
-	return &ProfileHandler{}
+func NewProfileHandler(mailService *mail.Service) *ProfileHandler {
+	return &ProfileHandler{
+		mailService: mailService,
+	}
 }
 
 func (h *ProfileHandler) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
@@ -177,4 +181,43 @@ func (h *ProfileHandler) HandleUpdateProfile(w http.ResponseWriter, r *http.Requ
 	}
 
 	response.JSON(w, http.StatusOK, "Profile updated", data)
+}
+
+func (h *ProfileHandler) HandleChangeEmail(w http.ResponseWriter, r *http.Request) {
+	var req dto.ChangeEmailRequest
+
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Parse request body
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	// Validate data
+	if err = validation.Email(req.Email); err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Call ChangeEmail service
+	err = service.ChangeEmail(r.Context(), database.DB, h.mailService, uid, req.Email)
+	if err != nil {
+		logger.Error("Profilehandler: ChangeEmail service", err)
+
+		if err.Error() == "email already in use" {
+			response.Error(w, http.StatusInternalServerError, "Email already associated with another account")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Email changed. Please verify it", nil)
 }

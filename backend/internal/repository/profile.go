@@ -92,3 +92,18 @@ func UpdateName(ctx context.Context, db *pgxpool.Pool, uid, name string) error {
 
 	return nil
 }
+
+func UpdateEmail(ctx context.Context, db *pgxpool.Pool, uid, newEmail string) error {
+	query := "UPDATE users SET email=$1, is_verified=FALSE WHERE uid=$2 AND is_verified=TRUE"
+
+	cmdTag, err := db.Exec(ctx, query, newEmail, uid)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed to change email")
+	}
+
+	return nil
+}

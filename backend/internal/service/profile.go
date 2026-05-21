@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"mime/multipart"
 	"strings"
+	"time"
 
+	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/logger"
+	"github.com/aprimr/myvault/internal/mail"
 	"github.com/aprimr/myvault/internal/models"
 	"github.com/aprimr/myvault/internal/repository"
 	"github.com/aprimr/myvault/internal/util"
@@ -117,6 +120,59 @@ func UpdateProfile(ctx context.Context, db *pgxpool.Pool, uid string, username, 
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func ChangeEmail(ctx context.Context, db *pgxpool.Pool, mailService *mail.Service, uid, newEmail string) error {
+	// Check if newEmail is already in use
+	taken, err := repository.IsEmailTaken(ctx, db, newEmail)
+	if err != nil {
+		return err
+	}
+	if taken {
+		return fmt.Errorf("email already in use")
+	}
+
+	// Generate OTP
+	otp, err := util.GenerateOTP()
+	if err != nil {
+		logger.Error("ChangeEmail service: Generate OTP", err)
+		return err
+	}
+
+	// Hash OTP
+	otpHash := util.HashOTP(otp)
+
+	// Store OTP in db
+	err = repository.StoreOTP(ctx, db, uid, otpHash, constants.OTPPurposeChangeEmail)
+	if err != nil {
+		logger.Error("ChangeEmail service: Store OTP", err)
+		return err
+	}
+
+	// Get User data
+	user, err := repository.GetProfileByUID(ctx, db, uid)
+	if err != nil {
+		logger.Error("ChangeEmail service: GetProfile", err)
+		return err
+	}
+
+	// Change email
+	err = repository.UpdateEmail(ctx, db, uid, newEmail)
+	if err != nil {
+		logger.Error("ChangeEmail service: UpdateEmail", err)
+		return err
+	}
+
+	// Send email
+	curTime := time.Now().Format("2006-01-02 15:04")
+	err = mailService.SendChangeEmailOTP(user.Name, newEmail, otp)
+	err = mailService.SendChangeEmailAlert(user.Name, user.Email, newEmail, curTime)
+	if err != nil {
+		logger.Error("ChangeEmail service: SendMail", err)
+		return err
 	}
 
 	return nil
