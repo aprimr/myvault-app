@@ -252,7 +252,7 @@ func (h *ProfileHandler) HandleChangePassword(w http.ResponseWriter, r *http.Req
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := validation.Password(req.Password); err != nil {
+	if err := validation.Password(req.NewPassword); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
