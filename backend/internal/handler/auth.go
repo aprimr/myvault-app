@@ -193,7 +193,11 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		logger.Error("Mail Service Error", err)
 	}
 
-	response.JSON(w, http.StatusOK, "Login successful", token)
+	data := map[string]string{
+		"token": token,
+	}
+
+	response.JSON(w, http.StatusOK, "Login successful", data)
 }
 
 func (h *AuthHandler) HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
