@@ -54,6 +54,7 @@ func main() {
 
 	authHandler := handler.NewAuthHandler(mailService)       // authHandler
 	profileHandler := handler.NewProfileHandler(mailService) // profileHandler
+	credentialHandler := handler.NewCredentialHandler()      // profileHandler
 
 	// Routes
 	r.Route("/api", func(r chi.Router) {
@@ -81,6 +82,11 @@ func main() {
 			// Settings
 			r.Put("/me/email", profileHandler.HandleChangeEmail)
 			r.Put("/me/password", profileHandler.HandleChangePassword)
+
+			// Credential
+			r.Route("/credential", func(r chi.Router) {
+				r.Post("/", credentialHandler.HandleAddCredential)
+			})
 		})
 
 	})
