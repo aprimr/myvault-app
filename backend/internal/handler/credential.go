@@ -20,6 +20,25 @@ func NewCredentialHandler() *CredentialHandler {
 	return &CredentialHandler{}
 }
 
+func (h *CredentialHandler) HandleGetCredential(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Call GetCredential service
+	credentials, err := service.GetCredential(r.Context(), database.DB, uid)
+	if err != nil {
+		logger.Error("GetCredential service", err)
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Credentials fetched", credentials)
+}
+
 func (h *CredentialHandler) HandleAddCredential(w http.ResponseWriter, r *http.Request) {
 	var req dto.AddCredentialRequest
 
