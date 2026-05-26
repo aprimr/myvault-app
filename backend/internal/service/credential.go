@@ -100,3 +100,9 @@ func AddCredential(ctx context.Context, db *pgxpool.Pool, uid, title, emailOrUse
 
 	return nil
 }
+
+func DeleteCredential(ctx context.Context, db *pgxpool.Pool, uid, id string) error {
+	err := repository.DeleteCredential(ctx, db, uid, id)
+
+	return err
+}

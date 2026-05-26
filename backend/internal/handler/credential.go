@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/aprimr/myvault/internal/constants"
 	"github.com/aprimr/myvault/internal/database"
@@ -11,6 +12,7 @@ import (
 	"github.com/aprimr/myvault/internal/helper/validation"
 	"github.com/aprimr/myvault/internal/logger"
 	"github.com/aprimr/myvault/internal/service"
+	"github.com/go-chi/chi/v5"
 )
 
 type CredentialHandler struct {
@@ -78,4 +80,34 @@ func (h *CredentialHandler) HandleAddCredential(w http.ResponseWriter, r *http.R
 	}
 
 	response.JSON(w, http.StatusCreated, "Credential added", nil)
+}
+
+func (h *CredentialHandler) HandleDeleteCredential(w http.ResponseWriter, r *http.Request) {
+
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Get credential id from url params
+	id := chi.URLParam(r, "id")
+	if strings.TrimSpace(id) == "" {
+		response.Error(w, http.StatusBadRequest, "Credential id is required")
+		return
+	}
+
+	// Call DeleteCredential Service
+	err := service.DeleteCredential(r.Context(), database.DB, uid, id)
+	if err != nil {
+		if err.Error() == "failed to delete credential" {
+			response.Error(w, http.StatusInternalServerError, "Failed to delete credential")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Credential removed", nil)
 }

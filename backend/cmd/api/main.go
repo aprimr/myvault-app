@@ -87,6 +87,7 @@ func main() {
 			r.Route("/credential", func(r chi.Router) {
 				r.Get("/", credentialHandler.HandleGetCredential)
 				r.Post("/", credentialHandler.HandleAddCredential)
+				// r.Delete("/{id}", )
 			})
 		})
 

@@ -56,3 +56,18 @@ func StoreCredential(ctx context.Context, db *pgxpool.Pool, uid, title, EmailOrU
 
 	return nil
 }
+
+func DeleteCredential(ctx context.Context, db *pgxpool.Pool, uid, id string) error {
+	query := "DELETE FROM credentisals WHERE uid=$1 AND id=$2"
+
+	cmdTag, err := db.Exec(ctx, query, uid, id)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed to delete credential")
+	}
+
+	return nil
+}
