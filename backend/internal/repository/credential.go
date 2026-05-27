@@ -58,7 +58,7 @@ func StoreCredential(ctx context.Context, db *pgxpool.Pool, uid, title, EmailOrU
 }
 
 func DeleteCredential(ctx context.Context, db *pgxpool.Pool, uid, id string) error {
-	query := "DELETE FROM credentisals WHERE uid=$1 AND id=$2"
+	query := "DELETE FROM credentials WHERE uid=$1 AND id=$2"
 
 	cmdTag, err := db.Exec(ctx, query, uid, id)
 	if err != nil {

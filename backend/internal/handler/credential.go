@@ -51,7 +51,7 @@ func (h *CredentialHandler) HandleGetCredentialById(w http.ResponseWriter, r *ht
 
 	id := chi.URLParam(r, "id")
 	if strings.TrimSpace(id) == "" {
-		response.Error(w, http.StatusBadRequest, "Invalid credential id")
+		response.Error(w, http.StatusBadRequest, "Credential id is required")
 		return
 	}
 
