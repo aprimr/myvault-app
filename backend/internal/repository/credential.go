@@ -71,3 +71,25 @@ func DeleteCredential(ctx context.Context, db *pgxpool.Pool, uid, id string) err
 
 	return nil
 }
+
+func GetCredentialById(ctx context.Context, db *pgxpool.Pool, uid, id string) (*models.Credential, error) {
+	query := "SELECT id, uid, title_encrypted, email_or_username_encrypted, password_encrypted, login_url_encrypted, description_encrypted, created_at, updated_at FROM credentials WHERE id=$1 AND uid=$2"
+
+	var cred models.Credential
+	err := db.QueryRow(ctx, query, id, uid).Scan(
+		&cred.Id,
+		&cred.Uid,
+		&cred.Title,
+		&cred.EmailOrUsername,
+		&cred.Password,
+		&cred.LoginURL,
+		&cred.Description,
+		&cred.CreatedAt,
+		&cred.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cred, nil
+}

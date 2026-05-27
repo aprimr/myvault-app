@@ -41,6 +41,30 @@ func (h *CredentialHandler) HandleGetCredential(w http.ResponseWriter, r *http.R
 	response.JSON(w, http.StatusOK, "Credentials fetched", credentials)
 }
 
+func (h *CredentialHandler) HandleGetCredentialById(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	id := chi.URLParam(r, "id")
+	if strings.TrimSpace(id) == "" {
+		response.Error(w, http.StatusBadRequest, "Invalid credential id")
+		return
+	}
+
+	// Call GetCredentialById service
+	cred, err := service.GetCredentialById(r.Context(), database.DB, uid, id)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Credentials fetched", cred)
+}
+
 func (h *CredentialHandler) HandleAddCredential(w http.ResponseWriter, r *http.Request) {
 	var req dto.AddCredentialRequest
 

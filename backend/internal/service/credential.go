@@ -106,3 +106,48 @@ func DeleteCredential(ctx context.Context, db *pgxpool.Pool, uid, id string) err
 
 	return err
 }
+
+func GetCredentialById(ctx context.Context, db *pgxpool.Pool, uid, id string) (*models.Credential, error) {
+	key := os.Getenv("AES_ENCRYPTION_KEY")
+	// Call Repository
+	cred, err := repository.GetCredentialById(ctx, db, uid, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// decrypt credentials
+	title, err := util.Decrypt(cred.Title, []byte(key))
+	if err != nil {
+		return nil, err
+	}
+	emailOrUsername, err := util.Decrypt(cred.EmailOrUsername, []byte(key))
+	if err != nil {
+		return nil, err
+	}
+	password, err := util.Decrypt(cred.Password, []byte(key))
+	if err != nil {
+		return nil, err
+	}
+	loginURL, err := util.Decrypt(*cred.LoginURL, []byte(key))
+	if err != nil {
+		return nil, err
+	}
+	description, err := util.Decrypt(*cred.Description, []byte(key))
+	if err != nil {
+		return nil, err
+	}
+
+	decryptedCred := models.Credential{
+		Id:              cred.Id,
+		Uid:             cred.Uid,
+		Title:           title,
+		EmailOrUsername: emailOrUsername,
+		Password:        password,
+		LoginURL:        &loginURL,
+		Description:     &description,
+		CreatedAt:       cred.CreatedAt,
+		UpdatedAt:       cred.UpdatedAt,
+	}
+
+	return &decryptedCred, nil
+}
