@@ -55,6 +55,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(mailService)       // authHandler
 	profileHandler := handler.NewProfileHandler(mailService) // profileHandler
 	credentialHandler := handler.NewCredentialHandler()      // profileHandler
+	notesHandler := handler.NewNotesHandler()                // notesHandler
 
 	// Routes
 	r.Route("/api", func(r chi.Router) {
@@ -89,6 +90,11 @@ func main() {
 				r.Post("/", credentialHandler.HandleAddCredential)
 				r.Get("/{id}", credentialHandler.HandleGetCredentialById)
 				r.Delete("/{id}", credentialHandler.HandleDeleteCredential)
+			})
+
+			// Notes
+			r.Route("/notes", func(r chi.Router) {
+				r.Post("/", notesHandler.HandleAddNewNotes)
 			})
 		})
 
