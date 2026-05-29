@@ -94,6 +94,7 @@ func main() {
 
 			// Notes
 			r.Route("/notes", func(r chi.Router) {
+				r.Get("/", notesHandler.HandleGetAllNotes)
 				r.Post("/", notesHandler.HandleAddNewNotes)
 			})
 		})

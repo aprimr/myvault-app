@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/aprimr/myvault/internal/models"
@@ -31,4 +32,39 @@ func AddNewNotes(ctx context.Context, db *pgxpool.Pool, uid, title, content stri
 	}
 
 	return notes, nil
+}
+
+func GetAllNotes(ctx context.Context, db *pgxpool.Pool, uid string) (*[]models.Notes, error) {
+	key := []byte(os.Getenv("AES_ENCRYPTION_KEY"))
+
+	// Call Repository
+	notes, err := repository.GetAllNotes(ctx, db, uid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch notes")
+	}
+
+	// Decrypt notes
+	var decrypted []models.Notes
+	for _, n := range *notes {
+		title, err := util.Decrypt(n.Title, key)
+		if err != nil {
+			return nil, err
+		}
+
+		content, err := util.Decrypt(n.Content, key)
+		if err != nil {
+			return nil, err
+		}
+
+		decrypted = append(decrypted, models.Notes{
+			Id:        n.Id,
+			Uid:       n.Uid,
+			Title:     title,
+			Content:   content,
+			CreatedAt: n.CreatedAt,
+			UpdatedAt: n.UpdatedAt,
+		})
+	}
+
+	return &decrypted, nil
 }

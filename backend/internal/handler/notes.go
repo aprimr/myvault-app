@@ -49,3 +49,25 @@ func (h *NotesHandler) HandleAddNewNotes(w http.ResponseWriter, r *http.Request)
 
 	response.JSON(w, http.StatusOK, "Notes added successfully", notes)
 }
+
+func (h *NotesHandler) HandleGetAllNotes(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Call sercice layer
+	models, err := service.GetAllNotes(r.Context(), database.DB, uid)
+	if err != nil {
+		if err.Error() == "failed to fetch notes" {
+			response.Error(w, http.StatusInternalServerError, "Failed to fetch notes")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Notes fetched", models)
+}

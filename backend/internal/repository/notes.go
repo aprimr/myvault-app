@@ -25,3 +25,34 @@ func AddNewNotes(ctx context.Context, db *pgxpool.Pool, uid, title, content stri
 	}
 	return &notes, nil
 }
+
+func GetAllNotes(ctx context.Context, db *pgxpool.Pool, uid string) (*[]models.Notes, error) {
+	query := "SELECT id, uid, title, content, created_at, updated_at FROM notes WHERE uid=$1"
+
+	rows, err := db.Query(ctx, query, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var notes []models.Notes
+	for rows.Next() {
+		var note models.Notes
+
+		err := rows.Scan(
+			&note.Id,
+			&note.Uid,
+			&note.Title,
+			&note.Content,
+			&note.CreatedAt,
+			&note.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		notes = append(notes, note)
+	}
+
+	return &notes, nil
+}
