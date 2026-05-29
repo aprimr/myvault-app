@@ -10,6 +10,7 @@ import (
 	"github.com/aprimr/myvault/internal/dto"
 	"github.com/aprimr/myvault/internal/helper/response"
 	"github.com/aprimr/myvault/internal/service"
+	"github.com/go-chi/chi/v5"
 )
 
 type NotesHandler struct{}
@@ -70,4 +71,29 @@ func (h *NotesHandler) HandleGetAllNotes(w http.ResponseWriter, r *http.Request)
 	}
 
 	response.JSON(w, http.StatusOK, "Notes fetched", models)
+}
+
+func (h *NotesHandler) HandleGetNotesByID(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Get note id from request params
+	id := chi.URLParam(r, "id")
+	if strings.TrimSpace(id) == "" {
+		response.Error(w, http.StatusBadRequest, "Invalid notes id")
+		return
+	}
+
+	// Call service layer
+	notes, err := service.GetNotesByID(r.Context(), database.DB, uid, id)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Notes fetched", notes)
 }

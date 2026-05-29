@@ -56,3 +56,23 @@ func GetAllNotes(ctx context.Context, db *pgxpool.Pool, uid string) (*[]models.N
 
 	return &notes, nil
 }
+
+func GetNotesByID(ctx context.Context, db *pgxpool.Pool, id, uid string) (*models.Notes, error) {
+	query := "SELECT id, uid, title, content, created_at, updated_at FROM notes WHERE id=$1 and uid=$2"
+
+	var notes models.Notes
+	err := db.QueryRow(ctx, query, id, uid).Scan(
+		&notes.Id,
+		&notes.Uid,
+		&notes.Title,
+		&notes.Content,
+		&notes.CreatedAt,
+		&notes.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &notes, nil
+}

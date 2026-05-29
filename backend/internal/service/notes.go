@@ -68,3 +68,32 @@ func GetAllNotes(ctx context.Context, db *pgxpool.Pool, uid string) (*[]models.N
 
 	return &decrypted, nil
 }
+
+func GetNotesByID(ctx context.Context, db *pgxpool.Pool, uid, id string) (*models.Notes, error) {
+	key := []byte(os.Getenv("AES_ENCRYPTION_KEY"))
+
+	notes, err := repository.GetNotesByID(ctx, db, id, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decrypt data
+	title, err := util.Decrypt(notes.Title, key)
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := util.Encrypt(notes.Content, key)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.Notes{
+		Id:        notes.Id,
+		Uid:       notes.Uid,
+		Title:     title,
+		Content:   content,
+		CreatedAt: notes.CreatedAt,
+		UpdatedAt: notes.UpdatedAt,
+	}, nil
+}
