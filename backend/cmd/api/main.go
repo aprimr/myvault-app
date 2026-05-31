@@ -98,6 +98,7 @@ func main() {
 				r.Get("/{id}", notesHandler.HandleGetNotesByID)
 				r.Post("/", notesHandler.HandleAddNewNotes)
 				r.Delete("/{id}", notesHandler.HandleDeleteNotesByID)
+				r.Patch("/{id}", notesHandler.HandleUpdateNotes)
 			})
 		})
 

@@ -92,3 +92,22 @@ func DeleteNotesByID(ctx context.Context, db *pgxpool.Pool, id, uid string) erro
 
 	return nil
 }
+
+func UpdateNotes(ctx context.Context, db *pgxpool.Pool, id, uid, title, content string) (*models.Notes, error) {
+	query := "UPDATE notes SET title=$1, content=$2, updated_at=now() WHERE id=$3 and uid=$4 RETURNING id, uid, title, content, created_at, updated_at"
+
+	var updatedNote models.Notes
+	err := db.QueryRow(ctx, query, title, content, id, uid).Scan(
+		&updatedNote.Id,
+		&updatedNote.Uid,
+		&updatedNote.Title,
+		&updatedNote.Content,
+		&updatedNote.CreatedAt,
+		&updatedNote.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &updatedNote, nil
+}

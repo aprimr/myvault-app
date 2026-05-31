@@ -104,3 +104,25 @@ func DeleteNotesByID(ctx context.Context, db *pgxpool.Pool, id, uid string) erro
 
 	return err
 }
+
+func UpdateNotes(ctx context.Context, db *pgxpool.Pool, title, content, id, uid string) (*models.Notes, error) {
+	key := []byte(os.Getenv("AES_ENCRYPTION_KEY"))
+
+	// Encrypt title and content
+	encryptedTitle, err := util.Encrypt(title, key)
+	if err != nil {
+		return nil, err
+	}
+	encryptedContent, err := util.Encrypt(content, key)
+	if err != nil {
+		return nil, err
+	}
+
+	// Call repository
+	notes, err := repository.UpdateNotes(ctx, db, id, uid, encryptedTitle, encryptedContent)
+	if err != nil {
+		return nil, err
+	}
+
+	return notes, nil
+}

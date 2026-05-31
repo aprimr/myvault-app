@@ -126,3 +126,42 @@ func (h *NotesHandler) HandleDeleteNotesByID(w http.ResponseWriter, r *http.Requ
 
 	response.JSON(w, http.StatusOK, "Notes deleted", nil)
 }
+
+func (h *NotesHandler) HandleUpdateNotes(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Get note id from request params
+	id := chi.URLParam(r, "id")
+	if strings.TrimSpace(id) == "" {
+		response.Error(w, http.StatusBadRequest, "Invalid notes id")
+		return
+	}
+
+	// Parse json
+	var req dto.AddNoteRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	// Validate data
+	if strings.TrimSpace(req.Title) == "" {
+		response.Error(w, http.StatusBadRequest, "Title is required")
+		return
+	}
+
+	// Call service layer
+	notes, err := service.UpdateNotes(r.Context(), database.DB, req.Title, req.Content, id, uid)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Notes updated", notes)
+}
