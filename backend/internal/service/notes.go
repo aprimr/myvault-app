@@ -97,3 +97,10 @@ func GetNotesByID(ctx context.Context, db *pgxpool.Pool, uid, id string) (*model
 		UpdatedAt: notes.UpdatedAt,
 	}, nil
 }
+
+func DeleteNotesByID(ctx context.Context, db *pgxpool.Pool, id, uid string) error {
+	// Call repository
+	err := repository.DeleteNotesByID(ctx, db, id, uid)
+
+	return err
+}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aprimr/myvault/internal/models"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -75,4 +76,19 @@ func GetNotesByID(ctx context.Context, db *pgxpool.Pool, id, uid string) (*model
 	}
 
 	return &notes, nil
+}
+
+func DeleteNotesByID(ctx context.Context, db *pgxpool.Pool, id, uid string) error {
+	query := "DELETE FROM notes WHERE id=$1 AND uid=$2"
+
+	cmdTag, err := db.Exec(ctx, query, id, uid)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("failed to delete notes")
+	}
+
+	return nil
 }

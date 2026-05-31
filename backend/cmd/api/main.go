@@ -97,6 +97,7 @@ func main() {
 				r.Get("/", notesHandler.HandleGetAllNotes)
 				r.Get("/{id}", notesHandler.HandleGetNotesByID)
 				r.Post("/", notesHandler.HandleAddNewNotes)
+				r.Delete("/{id}", notesHandler.HandleDeleteNotesByID)
 			})
 		})
 
