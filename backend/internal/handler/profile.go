@@ -66,7 +66,7 @@ func (h *ProfileHandler) HandleUpdateProfilePic(w http.ResponseWriter, r *http.R
 	// Parse multipart form
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		response.Error(w, http.StatusBadRequest, "invalid multipart form")
+		response.Error(w, http.StatusBadRequest, "File too large or invalid form")
 		return
 	}
 

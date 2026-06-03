@@ -56,6 +56,7 @@ func main() {
 	profileHandler := handler.NewProfileHandler(mailService) // profileHandler
 	credentialHandler := handler.NewCredentialHandler()      // profileHandler
 	notesHandler := handler.NewNotesHandler()                // notesHandler
+	documentsHandler := handler.NewDocumentsHandler()        // notesHandler
 
 	// Routes
 	r.Route("/api", func(r chi.Router) {
@@ -99,6 +100,11 @@ func main() {
 				r.Post("/", notesHandler.HandleAddNewNotes)
 				r.Delete("/{id}", notesHandler.HandleDeleteNotesByID)
 				r.Patch("/{id}", notesHandler.HandleUpdateNotes)
+			})
+
+			// Document
+			r.Route("/document", func(r chi.Router) {
+				r.Post("/", documentsHandler.HandleAddDocument)
 			})
 		})
 
