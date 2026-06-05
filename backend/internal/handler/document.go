@@ -18,6 +18,29 @@ func NewDocumentsHandler() *DocumentsHandler {
 	return &DocumentsHandler{}
 }
 
+func (h *DocumentsHandler) HandleGetAllDocuments(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Call service layer
+	documents, err := service.GetAllDocuments(r.Context(), database.DB, uid)
+	if err != nil {
+		logger.Debug(err.Error())
+		if err.Error() == "error decrypting data" {
+			response.Error(w, http.StatusInternalServerError, "Failed to decrypt data")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Documents fetched", documents)
+}
+
 func (h *DocumentsHandler) HandleAddDocument(w http.ResponseWriter, r *http.Request) {
 	// Get uid from request context
 	uid, ok := r.Context().Value(constants.ContextUID).(string)
