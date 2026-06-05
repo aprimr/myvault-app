@@ -9,6 +9,7 @@ import (
 	"github.com/aprimr/myvault/internal/helper/response"
 	"github.com/aprimr/myvault/internal/logger"
 	"github.com/aprimr/myvault/internal/service"
+	"github.com/go-chi/chi/v5"
 )
 
 type DocumentsHandler struct {
@@ -39,6 +40,35 @@ func (h *DocumentsHandler) HandleGetAllDocuments(w http.ResponseWriter, r *http.
 	}
 
 	response.JSON(w, http.StatusOK, "Documents fetched", documents)
+}
+
+func (h *DocumentsHandler) HandleGetDocumentByID(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Get id from URL params
+	id := chi.URLParam(r, "id")
+	if strings.TrimSpace(id) == "" {
+		response.Error(w, http.StatusBadRequest, "Document id is required")
+		return
+	}
+
+	// Call service layer
+	document, err := service.GetDocumentByID(r.Context(), database.DB, id, uid)
+	if err != nil {
+		if err.Error() == "failed to decrypt data" {
+			response.Error(w, http.StatusInternalServerError, "Failed to decrypt data")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Document fetched", document)
 }
 
 func (h *DocumentsHandler) HandleAddDocument(w http.ResponseWriter, r *http.Request) {

@@ -106,6 +106,7 @@ func main() {
 			r.Route("/document", func(r chi.Router) {
 				r.Post("/", documentsHandler.HandleAddDocument)
 				r.Get("/", documentsHandler.HandleGetAllDocuments)
+				r.Get("/{id}", documentsHandler.HandleGetDocumentByID)
 			})
 		})
 

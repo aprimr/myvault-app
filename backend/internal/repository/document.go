@@ -38,6 +38,27 @@ func GetAllDocuments(ctx context.Context, db *pgxpool.Pool, uid string) (*[]mode
 	return &documents, nil
 }
 
+func GetDocumentByID(ctx context.Context, db *pgxpool.Pool, uid, id string) (*models.Document, error) {
+	query := "SELECT id, uid, title, description, document_url, created_at, updated_at FROM documents WHERE id=$1 AND uid=$2"
+
+	var document models.Document
+	err := db.QueryRow(ctx, query, id, uid).Scan(
+		&document.Id,
+		&document.Uid,
+		&document.Title,
+		&document.Description,
+		&document.DocumentURL,
+		&document.CreatedAt,
+		&document.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &document, nil
+}
+
 func AddDocument(ctx context.Context, db *pgxpool.Pool, uid, title, description, documentURL string) (*models.Document, error) {
 	query := "INSERT INTO documents (uid, title, description, document_url) VALUES($1, $2, $3, $4) RETURNING id, uid, title, description, document_url, created_at, updated_at"
 

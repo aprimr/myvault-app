@@ -51,6 +51,35 @@ func GetAllDocuments(ctx context.Context, db *pgxpool.Pool, uid string) (*[]mode
 	return documents, nil
 }
 
+func GetDocumentByID(ctx context.Context, db *pgxpool.Pool, id, uid string) (*models.Document, error) {
+	key := []byte(os.Getenv("AES_ENCRYPTION_KEY"))
+
+	document, err := repository.GetDocumentByID(ctx, db, uid, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decrypt data
+	title, err := util.Decrypt(document.Title, key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt data")
+	}
+	description, err := util.Decrypt(document.Description, key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt data")
+	}
+	documentURL, err := util.Decrypt(document.DocumentURL, key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt data")
+	}
+
+	document.Title = title
+	document.Description = description
+	document.DocumentURL = documentURL
+
+	return document, nil
+}
+
 func AddDocument(ctx context.Context, db *pgxpool.Pool, uid, title, description string, file *multipart.File) (*models.Document, error) {
 	// Get encryption key
 	key := []byte(os.Getenv("AES_ENCRYPTION_KEY"))
