@@ -118,3 +118,36 @@ func (h *DocumentsHandler) HandleAddDocument(w http.ResponseWriter, r *http.Requ
 
 	response.JSON(w, http.StatusOK, "Document added successfully", document)
 }
+
+func (h *DocumentsHandler) HandleDeleteDocument(w http.ResponseWriter, r *http.Request) {
+	// Get uid from request context
+	uid, ok := r.Context().Value(constants.ContextUID).(string)
+	if !ok || uid == "" {
+		response.Error(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Get id from URL params
+	id := chi.URLParam(r, "id")
+	if strings.TrimSpace(id) == "" {
+		response.Error(w, http.StatusBadRequest, "Document id is required")
+		return
+	}
+
+	// Call service
+	err := service.DeleteDocument(r.Context(), database.DB, id, uid)
+	if err != nil {
+		if err.Error() == "document not found" {
+			response.Error(w, http.StatusNotFound, "Document not found")
+			return
+		}
+		if err.Error() == "failed to delete document" {
+			response.Error(w, http.StatusInternalServerError, "Failed to delete document")
+			return
+		}
+		response.Error(w, http.StatusInternalServerError, "Something went wrong")
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "Document deleted successfully", nil)
+}

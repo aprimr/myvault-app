@@ -107,6 +107,7 @@ func main() {
 				r.Post("/", documentsHandler.HandleAddDocument)
 				r.Get("/", documentsHandler.HandleGetAllDocuments)
 				r.Get("/{id}", documentsHandler.HandleGetDocumentByID)
+				r.Delete("/{id}", documentsHandler.HandleDeleteDocument)
 			})
 		})
 

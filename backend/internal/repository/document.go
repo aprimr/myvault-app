@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aprimr/myvault/internal/models"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -74,4 +75,19 @@ func AddDocument(ctx context.Context, db *pgxpool.Pool, uid, title, description,
 	)
 
 	return &document, err
+}
+
+func DeleteDocument(ctx context.Context, db *pgxpool.Pool, uid, id string) error {
+	query := "DELETE FROM documents WHERE id=$1 AND uid=$2"
+
+	cmdTag, err := db.Exec(ctx, query, id, uid)
+	if err != nil {
+		return fmt.Errorf("failed to delete document")
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("document not found")
+	}
+
+	return nil
 }

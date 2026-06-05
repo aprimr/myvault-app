@@ -112,3 +112,31 @@ func AddDocument(ctx context.Context, db *pgxpool.Pool, uid, title, description 
 
 	return document, nil
 }
+
+func DeleteDocument(ctx context.Context, db *pgxpool.Pool, id, uid string) error {
+	// Get encryption key
+	key := []byte(os.Getenv("AES_ENCRYPTION_KEY"))
+
+	// Get document
+	doc, err := repository.GetDocumentByID(ctx, db, uid, id)
+	if err != nil {
+		return fmt.Errorf("document not found")
+	}
+
+	// Decode documentURL
+	docURL, err := util.Decrypt(doc.DocumentURL, key)
+
+	// Delete file from storage
+	err = util.DeleteImage(ctx, docURL)
+	if err != nil {
+		return fmt.Errorf("failed to delete document")
+	}
+
+	// Delete data from database
+	err = repository.DeleteDocument(ctx, db, uid, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete document")
+	}
+
+	return nil
+}
