@@ -170,7 +170,7 @@ func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err.Error() == "account is not verified" {
-			response.Error(w, http.StatusForbidden, "Account not verified. Please verify your email.")
+			response.Error(w, http.StatusForbidden, "Please verify your account.")
 			return
 		}
 		if err.Error() == "account deleted" {
