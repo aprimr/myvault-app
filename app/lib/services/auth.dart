@@ -1,4 +1,5 @@
 import 'package:app/core/api.dart';
+import 'package:app/core/constants.dart';
 import 'package:app/core/storage.dart';
 
 class AuthService {
@@ -17,11 +18,25 @@ class AuthService {
     await storage.saveToken(token);
   }
 
-  Future<void> signup(String name, String email, String password) async {
-    await api.post('/auth/signup', {
+  Future<Map<String, dynamic>> signup(
+    String name,
+    String email,
+    String password,
+  ) async {
+    final res = await api.post('/auth/signup', {
       "name": name,
       "email": email,
       "password": password,
+    });
+
+    return res.data;
+  }
+
+  Future<void> verifyAccount(String uid, String otp) async {
+    await api.post('/auth/verify-otp', {
+      "uid": uid,
+      "otp": otp,
+      "purpose": Constants.otpPurposeVerifyEmail,
     });
   }
 

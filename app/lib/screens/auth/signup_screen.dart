@@ -348,16 +348,18 @@ class _SignupScreenState extends State<SignupScreen> {
         isLoading = true;
       });
 
-      await authService.signup(
+      final res = await authService.signup(
         nameController.text,
         emailController.text.toLowerCase(),
         passwordController.text,
       );
 
       if (!mounted) return;
-      AppSnackbar.show(context, message: "Account created successfully");
-
-      // TODO: route user to verify screen
+      Navigator.pushNamed(
+        context,
+        AppRoutes.verifyAccountRoute,
+        arguments: {"email": emailController.text, "uid": res["data"]["uid"]},
+      );
     } catch (e) {
       String message = "Something went wrong";
       if (e is DioException) {
