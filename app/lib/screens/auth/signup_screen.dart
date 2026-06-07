@@ -1,0 +1,373 @@
+import 'package:app/core/app.dart';
+import 'package:app/core/routes.dart';
+import 'package:app/utils/validators.dart';
+import 'package:app/widgets/snackbar.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
+
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final authService = App.authService;
+
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  bool isLoading = false;
+  bool _hidePassword = true;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _hidePassword = !_hidePassword;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 26),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Logo
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      HugeIcon(
+                        icon: HugeIcons.strokeRoundedSafeBox,
+                        color: colorScheme.primary,
+                        size: 36,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Signup to My Vault
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Signup to',
+                        style: GoogleFonts.stackSansNotch(
+                          fontSize: 38,
+                          fontWeight: FontWeight.w500,
+                          height: 1.14,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        'My Vault',
+                        style: GoogleFonts.nunitoSans(
+                          fontSize: 38,
+                          fontWeight: FontWeight.w800,
+                          height: 1.14,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // Name
+                        Row(
+                          children: [
+                            Text(
+                              'Name',
+                              style: GoogleFonts.nunitoSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: colorScheme.onSurface.withAlpha(200),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: nameController,
+                          keyboardType: TextInputType.text,
+                          cursorColor: colorScheme.primary,
+                          style: GoogleFonts.inter(fontSize: 15),
+
+                          validator: FieldValidators.validateName,
+
+                          decoration: InputDecoration(
+                            hintText: 'John Doe',
+                            hintStyle: GoogleFonts.poppins(
+                              color: colorScheme.onSecondary.withAlpha(100),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: colorScheme.onSurface.withAlpha(40),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: colorScheme.primary,
+                                width: 1.6,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Email
+                        Row(
+                          children: [
+                            Text(
+                              'Email',
+                              style: GoogleFonts.nunitoSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: colorScheme.onSurface.withAlpha(200),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          cursorColor: colorScheme.primary,
+                          style: GoogleFonts.inter(fontSize: 15),
+
+                          validator: FieldValidators.validateEmail,
+                          inputFormatters: [
+                            TextInputFormatter.withFunction(
+                              (email, lowerEmail) => lowerEmail.copyWith(
+                                text: lowerEmail.text.toLowerCase(),
+                              ),
+                            ),
+                          ],
+
+                          decoration: InputDecoration(
+                            hintText: 'john@gmail.com',
+                            hintStyle: GoogleFonts.poppins(
+                              color: colorScheme.onSecondary.withAlpha(100),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: colorScheme.onSurface.withAlpha(40),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: colorScheme.primary,
+                                width: 1.6,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Password
+                        Row(
+                          children: [
+                            Text(
+                              'Password',
+                              style: GoogleFonts.nunitoSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: colorScheme.onSurface.withAlpha(200),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: passwordController,
+                          keyboardType: TextInputType.visiblePassword,
+                          cursorColor: colorScheme.primary,
+                          style: GoogleFonts.inter(fontSize: 15),
+                          obscureText: _hidePassword,
+                          enableSuggestions: false,
+                          autocorrect: false,
+
+                          validator: FieldValidators.validatePassword,
+
+                          decoration: InputDecoration(
+                            hintText: '••••••••',
+                            suffixIcon: IconButton(
+                              onPressed: _togglePasswordVisibility,
+                              icon: HugeIcon(
+                                icon: !_hidePassword
+                                    ? HugeIcons.strokeRoundedViewOffSlash
+                                    : HugeIcons.strokeRoundedView,
+                                size: 22,
+                                color: colorScheme.onSurface,
+                              ),
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                            ),
+                            hintStyle: GoogleFonts.poppins(
+                              color: colorScheme.onSecondary.withAlpha(100),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: colorScheme.onSurface.withAlpha(40),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: colorScheme.primary,
+                                width: 1.6,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Signup Button
+                        SizedBox(
+                          height: 54,
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : _handleSignup,
+                            style: ButtonStyle(
+                              elevation: WidgetStatePropertyAll(0),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    'Signup',
+                                    style: GoogleFonts.stackSansNotch(
+                                      fontSize: 22,
+                                      color: colorScheme.surface,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(bottom: 28),
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.loginRoute);
+              },
+              child: Text(
+                "Login",
+                style: GoogleFonts.poppins(
+                  color: colorScheme.primary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+
+            SizedBox(width: 10),
+            Text(
+              "•",
+              style: TextStyle(
+                fontSize: 24,
+                color: colorScheme.onSurface.withAlpha(150),
+              ),
+            ),
+            SizedBox(width: 10),
+
+            GestureDetector(
+              onTap: () {},
+              child: Text(
+                "Get Help",
+                style: GoogleFonts.poppins(
+                  color: colorScheme.primary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleSignup() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      await authService.signup(
+        nameController.text,
+        emailController.text.toLowerCase(),
+        passwordController.text,
+      );
+
+      if (!mounted) return;
+      AppSnackbar.show(context, message: "Account created successfully");
+
+      // TODO: route user to verify screen
+    } catch (e) {
+      String message = "Something went wrong";
+      if (e is DioException) {
+        message = e.response?.data["message"] ?? "Something went wrong";
+      }
+      AppSnackbar.show(context, message: message, isError: true);
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+}
