@@ -127,13 +127,6 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
                             color: colorScheme.onSurface.withAlpha(220),
                           ),
                         ),
-                        TextSpan(
-                          text: widget.uid,
-                          style: GoogleFonts.nunitoSans(
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.onSurface.withAlpha(220),
-                          ),
-                        ),
                         const TextSpan(text: " to verify your account."),
                       ],
                     ),
