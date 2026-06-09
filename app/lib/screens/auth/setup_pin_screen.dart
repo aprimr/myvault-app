@@ -194,7 +194,7 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
                 ],
               ),
 
-              const SizedBox(height: 76),
+              const SizedBox(height: 86),
             ],
           ),
         ),

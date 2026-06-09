@@ -11,31 +11,35 @@ class AppSnackbar {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+
+    messenger.showSnackBar(
       SnackBar(
         content: Text(
           message,
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: isError ? colorScheme.onErrorContainer : Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
 
-        backgroundColor: isError ? Colors.redAccent : colorScheme.primary,
+        backgroundColor: isError
+            ? colorScheme.errorContainer
+            : colorScheme.primary,
 
         behavior: SnackBarBehavior.floating,
 
         elevation: 0,
-        margin: const EdgeInsets.all(22),
+        margin: const EdgeInsets.only(left: 22, right: 22, bottom: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
 
         duration: const Duration(seconds: 3),
         action: actionLabel != null && onAction != null
             ? SnackBarAction(
-                backgroundColor: Colors.white,
                 label: actionLabel,
-                textColor: Colors.black,
+                textColor: colorScheme.primary,
                 onPressed: onAction,
               )
             : null,

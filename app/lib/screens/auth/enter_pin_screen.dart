@@ -70,7 +70,7 @@ class _EnterPinScreenState extends State<EnterPinScreen> {
 
       AppSnackbar.show(
         context,
-        message: "PINs do not match",
+        message: "Incorrect PIN",
         isError: true,
         actionLabel: "Get Help",
         onAction: () {
@@ -215,7 +215,7 @@ class _EnterPinScreenState extends State<EnterPinScreen> {
                 ],
               ),
 
-              const SizedBox(height: 76),
+              const SizedBox(height: 86),
             ],
           ),
         ),

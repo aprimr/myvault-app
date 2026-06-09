@@ -11,7 +11,10 @@ class AppTheme {
   static const _darkSurface = Color(0xFF111827);
   static const _darkText = Color(0xFFE5E7EB);
 
-  static const _error = Color(0xFFEC3528);
+  static const _error = Color(0xFFDC2626);
+  static const _onError = Color(0xFFFFFFFF);
+  static const _errorContainer = Color(0xFFFEE2E2);
+  static const _onErrorContainer = Color(0xFFDC2626);
 
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
@@ -24,6 +27,9 @@ class AppTheme {
       onSecondary: _lightText,
       onSurface: _lightText,
       error: _error,
+      onError: _onError,
+      errorContainer: _errorContainer,
+      onErrorContainer: _onErrorContainer,
     ),
 
     scaffoldBackgroundColor: _lightBackground,
@@ -65,6 +71,9 @@ class AppTheme {
       onSecondary: _darkText,
       onSurface: _darkText,
       error: _error,
+      onError: _onError,
+      errorContainer: _errorContainer,
+      onErrorContainer: _onErrorContainer,
     ),
 
     scaffoldBackgroundColor: _darkBackground,
