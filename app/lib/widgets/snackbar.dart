@@ -28,13 +28,14 @@ class AppSnackbar {
 
         elevation: 0,
         margin: const EdgeInsets.all(22),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
 
         duration: const Duration(seconds: 3),
         action: actionLabel != null && onAction != null
             ? SnackBarAction(
+                backgroundColor: Colors.white,
                 label: actionLabel,
-                textColor: colorScheme.onError,
+                textColor: Colors.black,
                 onPressed: onAction,
               )
             : null,

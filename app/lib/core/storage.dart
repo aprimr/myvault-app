@@ -15,3 +15,19 @@ class SecureStorage {
     await _storage.deleteAll();
   }
 }
+
+class AppPin {
+  final _storage = FlutterSecureStorage();
+
+  Future<void> savePin(String pin) async {
+    await _storage.write(key: 'app_pin', value: pin);
+  }
+
+  Future<String?> getPin() async {
+    return await _storage.read(key: "app_pin");
+  }
+
+  Future<void> clear() async {
+    await _storage.deleteAll();
+  }
+}

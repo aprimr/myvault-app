@@ -337,9 +337,12 @@ class _LoginScreenState extends State<LoginScreen> {
       await authService.login(emailController.text, passwordController.text);
 
       if (!mounted) return;
-      AppSnackbar.show(context, message: "Logged in successfully");
 
-      // TODO: route user to home screen
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.homeRoute,
+        (route) => false,
+      );
     } catch (e) {
       String message = "Something went wrong";
       if (e is DioException) {

@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final isWelcomeCompleted =
         await SharedPrefs.getBool(Constants.isWelcomeCompleted) ?? false;
 
-    final isLoggedIn = await SecureStorage().getToken();
+    final loginToken = await SecureStorage().getToken();
 
     if (!mounted) return;
 
@@ -38,8 +38,12 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     // Already logged in → Home
-    if (isLoggedIn == "") {
-      // Navigator.pushNamedAndRemoveUntil(context, AppRoutes., (route) => false,);
+    if (loginToken != null && loginToken.isNotEmpty) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.postLoginRoute,
+        (route) => false,
+      );
       return;
     }
 
@@ -56,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           // Logo
@@ -67,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 children: [
                   HugeIcon(
                     icon: HugeIcons.strokeRoundedSafeBox,
-                    color: Colors.white,
+                    color: colorScheme.primary,
                     size: 86,
                   ),
                 ],
@@ -83,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 22,
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: Colors.white,
+                color: colorScheme.primary,
               ),
             ),
           ),
