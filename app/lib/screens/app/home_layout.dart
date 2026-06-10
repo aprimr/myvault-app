@@ -27,7 +27,7 @@ class _HomeLayoutState extends State<HomeLayout> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      body: Expanded(child: _pages[_currentIndex]),
+      body: _pages[_currentIndex],
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

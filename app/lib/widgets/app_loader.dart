@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -41,15 +40,14 @@ class AppLoader extends StatelessWidget {
 
                 const SizedBox(width: 22),
 
-                Flexible(
-                  child: Text(
-                    message,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.onSurface,
-                    ),
+                Text(
+                  message,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.poppins(
+                    decoration: TextDecoration.none,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ],
