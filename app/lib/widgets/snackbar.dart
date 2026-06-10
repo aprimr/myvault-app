@@ -21,7 +21,7 @@ class AppSnackbar {
           style: GoogleFonts.inter(
             color: isError ? colorScheme.onErrorContainer : Colors.white,
             fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
 

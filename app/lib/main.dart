@@ -1,5 +1,6 @@
 import 'package:app/core/routes.dart';
 import 'package:app/core/theme.dart';
+import 'package:app/screens/app/credentials/add_credential_screen.dart';
 import 'package:app/screens/app/home_layout.dart';
 import 'package:app/screens/auth/enter_pin_screen.dart';
 import 'package:app/screens/auth/login_screen.dart';
@@ -31,13 +32,16 @@ class MyApp extends StatelessWidget {
 
       initialRoute: AppRoutes.splashRoute,
       routes: {
+        // Splash & welcome
         AppRoutes.splashRoute: (context) => SplashScreen(),
         AppRoutes.welcomeRoute: (context) => WelcomeScreen(),
 
+        // Pin
         AppRoutes.postLoginRoute: (context) => PostLoginRouter(),
         AppRoutes.setupPinRoute: (context) => SetupPinScreen(),
         AppRoutes.enterPinRoute: (context) => EnterPinScreen(),
 
+        // Auth
         AppRoutes.loginRoute: (context) => LoginScreen(),
         AppRoutes.signupRoute: (context) => SignupScreen(),
         AppRoutes.verifyAccountRoute: (context) {
@@ -50,6 +54,9 @@ class MyApp extends StatelessWidget {
 
         // Protected routes
         AppRoutes.homeRoute: (context) => HomeLayout(),
+
+        // Credential
+        AppRoutes.addCredentialRoute: (context) => AddCredentialScreen(),
       },
     );
   }

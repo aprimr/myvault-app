@@ -1,8 +1,9 @@
-import 'package:app/screens/app/document.dart';
-import 'package:app/screens/app/notes.dart';
-import 'package:app/screens/app/password.dart';
-import 'package:app/screens/app/profile.dart';
+import 'package:app/screens/app/documents/documents_screen.dart';
+import 'package:app/screens/app/notes/notes_screen.dart';
+import 'package:app/screens/app/credentials/credentials_screen.dart';
+import 'package:app/screens/app/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class HomeLayout extends StatefulWidget {
   const HomeLayout({super.key});
@@ -14,40 +15,83 @@ class HomeLayout extends StatefulWidget {
 class _HomeLayoutState extends State<HomeLayout> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const Notes(),
-    const Password(),
-    const Document(),
-    const Profile(),
+  final List<Widget> _pages = const [
+    CredentialsScreen(),
+    NotesScreen(),
+    DocumentsScreen(),
+    ProfileScreen(),
   ];
-
-  final List<String> _titles = ["Dashboard", "Notes", "Documents", "Profile"];
-
-  void _onTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      // TOP BAR
-      appBar: AppBar(title: Text(_titles[_currentIndex]), centerTitle: true),
+      body: Expanded(child: _pages[_currentIndex]),
 
-      // BODY (pages switch here)
-      body: _pages[_currentIndex],
-
-      // BOTTOM NAV BAR
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: _onTap,
+        onTap: (index) => setState(() => _currentIndex = index),
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.note), label: "Notes"),
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: "Files"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        elevation: 0,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.onSurface.withAlpha(120),
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: [
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedKey01,
+                size: 26,
+                color: _currentIndex == 0
+                    ? colorScheme.primary
+                    : colorScheme.onSurface,
+              ),
+            ),
+            label: 'Credentials',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedNote01,
+                size: 26,
+                color: _currentIndex == 1
+                    ? colorScheme.primary
+                    : colorScheme.onSurface,
+              ),
+            ),
+            label: 'Notes',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedFolderFileStorage,
+                size: 26,
+                color: _currentIndex == 2
+                    ? colorScheme.primary
+                    : colorScheme.onSurface,
+              ),
+            ),
+            label: 'Files',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedUser,
+                size: 26,
+                color: _currentIndex == 3
+                    ? colorScheme.primary
+                    : colorScheme.onSurface,
+              ),
+            ),
+            label: 'Profile',
+          ),
         ],
       ),
     );

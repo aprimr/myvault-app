@@ -13,4 +13,7 @@ class AppRoutes {
 
   // Protected Route
   static const homeRoute = "/home";
+
+  // Credentials
+  static const addCredentialRoute = "/add-credential";
 }
