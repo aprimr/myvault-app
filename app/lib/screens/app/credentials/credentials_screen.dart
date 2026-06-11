@@ -261,36 +261,49 @@ class _CredentialsScreenState extends State<CredentialsScreen> {
                                       padding: const EdgeInsets.only(
                                         bottom: 10,
                                       ),
-                                      child: Card(
-                                        color: color.withAlpha(24),
-                                        elevation: 0,
-                                        child: ListTile(
-                                          leading: HugeIcon(
-                                            icon: HugeIcons
-                                                .strokeRoundedLockPassword,
-                                            color: color,
-                                          ),
-                                          title: Text(
-                                            item["title"] ?? "",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: colorScheme.onSurface,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                            context,
+                                            AppRoutes.viewCredentialRoute,
+                                            arguments: item["id"],
+                                          );
+                                        },
+                                        child: Card(
+                                          color: color.withAlpha(24),
+                                          elevation: 0,
+                                          child: ListTile(
+                                            leading: HugeIcon(
+                                              icon: HugeIcons
+                                                  .strokeRoundedLockPassword,
+                                              color: color,
                                             ),
-                                          ),
-                                          subtitle: Text(
-                                            item["email_or_username"] ?? "",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: colorScheme.onSurface
-                                                  .withAlpha(200),
+                                            title: Text(
+                                              item["title"] ?? "",
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: colorScheme.onSurface,
+                                              ),
                                             ),
-                                          ),
-                                          trailing: HugeIcon(
-                                            icon: HugeIcons
-                                                .strokeRoundedArrowRight01,
-                                            size: 20,
-                                            color: color,
+                                            subtitle: Text(
+                                              item["email_or_username"] ?? "",
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: colorScheme.onSurface
+                                                    .withAlpha(200),
+                                              ),
+                                            ),
+                                            trailing: HugeIcon(
+                                              icon: HugeIcons
+                                                  .strokeRoundedArrowRight01,
+                                              size: 20,
+                                              color: color,
+                                            ),
                                           ),
                                         ),
                                       ),

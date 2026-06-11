@@ -16,4 +16,5 @@ class AppRoutes {
 
   // Credentials
   static const addCredentialRoute = "/add-credential";
+  static const viewCredentialRoute = "/view-credential";
 }

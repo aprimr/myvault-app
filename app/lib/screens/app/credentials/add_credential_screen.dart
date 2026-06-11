@@ -140,7 +140,7 @@ class _AddCredentialScreenState extends State<AddCredentialScreen> {
                         InputField(
                           controller: emailController,
                           label: "Email / Username",
-                          icon: HugeIcons.strokeRoundedMail01,
+                          icon: HugeIcons.strokeRoundedAt,
                           keyboardType: TextInputType.text,
                           validator: (v) => v!.isEmpty
                               ? "Email or username is required"
