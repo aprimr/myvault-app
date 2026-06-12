@@ -173,7 +173,6 @@ class _ViewCredentialScreenState extends State<ViewCredentialScreen> {
                             await service.deleteCredential(data!["id"]);
 
                             if (!context.mounted) return;
-
                             Navigator.pop(context, true);
                           },
                         ),

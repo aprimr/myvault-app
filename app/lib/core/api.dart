@@ -1,6 +1,5 @@
 import 'package:app/core/routes.dart';
 import 'package:app/core/storage.dart';
-import 'package:app/widgets/snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
