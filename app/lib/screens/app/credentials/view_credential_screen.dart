@@ -1,3 +1,4 @@
+import 'package:app/core/routes.dart';
 import 'package:app/widgets/hold_to_delete_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -157,6 +158,10 @@ class _ViewCredentialScreenState extends State<ViewCredentialScreen> {
                           icon: HugeIcons.strokeRoundedDelete01,
                           onDelete: () async {
                             await service.deleteCredential(data!["id"]);
+
+                            if (!context.mounted) return;
+
+                            Navigator.pop(context, true);
                           },
                         ),
                       ],

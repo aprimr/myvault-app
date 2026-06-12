@@ -262,12 +262,17 @@ class _CredentialsScreenState extends State<CredentialsScreen> {
                                         bottom: 10,
                                       ),
                                       child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                            context,
-                                            AppRoutes.viewCredentialRoute,
-                                            arguments: item["id"],
-                                          );
+                                        onTap: () async {
+                                          final deleted =
+                                              await Navigator.pushNamed(
+                                                context,
+                                                AppRoutes.viewCredentialRoute,
+                                                arguments: item["id"],
+                                              );
+
+                                          if (deleted == true) {
+                                            _loadCredentials();
+                                          }
                                         },
                                         child: Card(
                                           color: color.withAlpha(24),
