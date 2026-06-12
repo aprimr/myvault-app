@@ -1,5 +1,8 @@
+import 'package:app/core/routes.dart';
 import 'package:app/core/storage.dart';
+import 'package:app/widgets/snackbar.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 class ApiClient {
   final Dio dio = Dio(
@@ -11,7 +14,9 @@ class ApiClient {
 
   final storage = SecureStorage();
 
-  ApiClient() {
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  ApiClient({required this.navigatorKey}) {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -22,6 +27,19 @@ class ApiClient {
           }
 
           return handler.next(options);
+        },
+
+        onError: (DioException error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await storage.clear();
+
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              AppRoutes.loginRoute,
+              (route) => false,
+            );
+          }
+
+          return handler.next(error);
         },
       ),
     );

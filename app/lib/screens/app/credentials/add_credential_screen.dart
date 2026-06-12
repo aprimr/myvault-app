@@ -1,4 +1,4 @@
-import 'package:app/core/api.dart';
+import 'package:app/core/service_locator.dart';
 import 'package:app/services/credential.dart';
 import 'package:app/widgets/input_field.dart';
 import 'package:app/widgets/primary_button.dart';
@@ -19,8 +19,7 @@ class _AddCredentialScreenState extends State<AddCredentialScreen> {
   bool isLoading = false;
   bool _obscurePassword = true;
 
-  final credentialService = CredentialService(ApiClient());
-
+  late final CredentialService credentialService;
   final _formKey = GlobalKey<FormState>();
 
   final titleController = TextEditingController();
@@ -28,6 +27,13 @@ class _AddCredentialScreenState extends State<AddCredentialScreen> {
   final passwordController = TextEditingController();
   final urlController = TextEditingController();
   final descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    credentialService = CredentialService(apiClient);
+  }
 
   @override
   void dispose() {
@@ -56,7 +62,8 @@ class _AddCredentialScreenState extends State<AddCredentialScreen> {
       if (!mounted) return;
 
       setState(() => isLoading = false);
-      Navigator.pop(context);
+
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
 

@@ -1,4 +1,5 @@
-import 'package:app/core/routes.dart';
+import 'package:app/core/service_locator.dart';
+import 'package:app/utils/date_formatter.dart';
 import 'package:app/widgets/hold_to_delete_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:app/widgets/app_loader.dart';
 import 'package:app/services/credential.dart';
-import 'package:app/core/api.dart';
 
 class ViewCredentialScreen extends StatefulWidget {
   final String id;
@@ -21,27 +21,34 @@ class _ViewCredentialScreenState extends State<ViewCredentialScreen> {
   bool isLoading = true;
   bool showPassword = false;
 
-  final service = CredentialService(ApiClient());
+  late final CredentialService service;
 
   Map<String, dynamic>? data;
 
   @override
   void initState() {
     super.initState();
+
+    service = CredentialService(apiClient);
+
     _loadCredential();
   }
 
   Future<void> _loadCredential() async {
     try {
       setState(() => isLoading = true);
+
       final result = await service.getCredentialById(widget.id);
+
       if (!mounted) return;
+
       setState(() {
         data = result;
         isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
+
       setState(() => isLoading = false);
     }
   }
@@ -152,7 +159,13 @@ class _ViewCredentialScreenState extends State<ViewCredentialScreen> {
                           ),
                         ],
 
-                        SizedBox(height: 28),
+                        SizedBox(height: 12),
+
+                        _sectionLabel(
+                          "Created at: ${DateFormatter.toDateTime(data == null ? "" : (data!["created_at"] ?? ""))}",
+                        ),
+
+                        SizedBox(height: 18),
                         HoldToDeleteButton(
                           text: "Delete Credential",
                           icon: HugeIcons.strokeRoundedDelete01,
@@ -184,7 +197,7 @@ class _ViewCredentialScreenState extends State<ViewCredentialScreen> {
   Widget _sectionLabel(String label) {
     return Text(
       label,
-      style: GoogleFonts.outfit(
+      style: GoogleFonts.poppins(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.8,
@@ -225,7 +238,7 @@ class _ViewCredentialScreenState extends State<ViewCredentialScreen> {
                   label,
                   style: GoogleFonts.poppins(
                     fontSize: 11,
-                    color: colorScheme.onSurface.withAlpha(120),
+                    color: colorScheme.onSurface.withAlpha(170),
                   ),
                 ),
                 const SizedBox(height: 3),

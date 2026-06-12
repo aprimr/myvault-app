@@ -1,14 +1,13 @@
 import 'package:app/core/color_pallete.dart';
 import 'package:app/core/routes.dart';
+import 'package:app/core/service_locator.dart';
 import 'package:app/services/credential.dart';
-import 'package:app/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import 'package:app/widgets/app_loader.dart';
 import 'package:app/core/storage.dart';
-import 'package:app/core/api.dart';
 
 class CredentialsScreen extends StatefulWidget {
   const CredentialsScreen({super.key});
@@ -23,13 +22,13 @@ class _CredentialsScreenState extends State<CredentialsScreen> {
   List<dynamic> filtered = [];
   final _searchController = TextEditingController();
 
-  late final CredentialService service;
+  late CredentialService service;
   final storage = SecureStorage();
 
   @override
   void initState() {
     super.initState();
-    service = CredentialService(ApiClient());
+    service = CredentialService(apiClient);
     _searchController.addListener(_onSearch);
     _init();
   }
@@ -51,20 +50,14 @@ class _CredentialsScreenState extends State<CredentialsScreen> {
   }
 
   Future<void> _init() async {
-    final token = await storage.getToken();
-    if (token == null) {
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, AppRoutes.loginRoute);
-      AppSnackbar.show(context, message: "Please relogin", isError: true);
-      return;
-    }
     await _loadCredentials();
   }
 
   Future<void> _loadCredentials() async {
     try {
       setState(() => isLoading = true);
-      final data = await service.getAllCredentials();
+      final rawData = await service.getAllCredentials();
+      final data = rawData.reversed.toList();
       if (!mounted) return;
       setState(() {
         credentials = data;
@@ -74,7 +67,6 @@ class _CredentialsScreenState extends State<CredentialsScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => isLoading = false);
-      debugPrint("Error loading credentials: $e");
     }
   }
 
@@ -324,8 +316,15 @@ class _CredentialsScreenState extends State<CredentialsScreen> {
           floatingActionButton: credentials.isEmpty
               ? null
               : FloatingActionButton.extended(
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.addCredentialRoute);
+                  onPressed: () async {
+                    var added = await Navigator.pushNamed(
+                      context,
+                      AppRoutes.addCredentialRoute,
+                    );
+
+                    if (added == true) {
+                      _loadCredentials();
+                    }
                   },
                   elevation: 0,
                   hoverElevation: 0,

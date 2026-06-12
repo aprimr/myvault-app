@@ -1,4 +1,6 @@
+import 'package:app/core/api.dart';
 import 'package:app/core/routes.dart';
+import 'package:app/core/service_locator.dart';
 import 'package:app/core/theme.dart';
 import 'package:app/screens/app/credentials/add_credential_screen.dart';
 import 'package:app/screens/app/credentials/view_credential_screen.dart';
@@ -13,8 +15,12 @@ import 'package:app/screens/welcome/splash_screen.dart';
 import 'package:app/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  apiClient = ApiClient(navigatorKey: navigatorKey);
 
   runApp(const MyApp());
 }
@@ -31,6 +37,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
 
+      navigatorKey: navigatorKey,
       initialRoute: AppRoutes.splashRoute,
       routes: {
         // Splash & welcome
