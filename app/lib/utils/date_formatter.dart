@@ -1,38 +1,61 @@
 import 'package:intl/intl.dart';
 
 class DateFormatter {
-  /// Converts full timestamp → readable date
-  /// Example: 2026-06-10 07:43:02.055242+00 → 10 Jun 2026
+  // Converts full timestamp → readable local date
+  // Example:
+  // 10 Jun 2026
   static String toSimpleDate(String dateStr) {
     try {
-      final date = DateTime.parse(dateStr);
+      final date = DateTime.parse(dateStr).toLocal();
+
       return DateFormat('dd MMM yyyy').format(date);
     } catch (e) {
-      return dateStr; // fallback if parsing fails
+      return dateStr;
     }
   }
 
-  /// Converts to date + time
-  /// Example: 10 Jun 2026, 7:43 AM
+  // Converts to local date + time
+  // Example:
+  // 10 Jun 2026, 1:28 PM
   static String toDateTime(String dateStr) {
     try {
-      final date = DateTime.parse(dateStr);
+      final date = DateTime.parse(dateStr).toLocal();
+
       return DateFormat('dd MMM yyyy, h:mm a').format(date);
     } catch (e) {
       return dateStr;
     }
   }
 
-  /// Relative time (optional bonus)
-  /// Example: "2 hours ago"
+  // Relative time based on local time
+  // Example:
+  // "2 hours ago"
   static String toRelative(String dateStr) {
     try {
-      final date = DateTime.parse(dateStr);
-      final diff = DateTime.now().difference(date);
+      final date = DateTime.parse(dateStr).toLocal();
+      final now = DateTime.now();
+      final diff = now.difference(date);
 
-      if (diff.inDays > 0) return '${diff.inDays} day(s) ago';
-      if (diff.inHours > 0) return '${diff.inHours} hour(s) ago';
-      if (diff.inMinutes > 0) return '${diff.inMinutes} minute(s) ago';
+      if (diff.inDays > 365) {
+        return '${(diff.inDays / 365).floor()} year(s) ago';
+      }
+
+      if (diff.inDays > 30) {
+        return '${(diff.inDays / 30).floor()} month(s) ago';
+      }
+
+      if (diff.inDays > 0) {
+        return '${diff.inDays} day(s) ago';
+      }
+
+      if (diff.inHours > 0) {
+        return '${diff.inHours} hour(s) ago';
+      }
+
+      if (diff.inMinutes > 0) {
+        return '${diff.inMinutes} minute(s) ago';
+      }
+
       return 'just now';
     } catch (e) {
       return dateStr;

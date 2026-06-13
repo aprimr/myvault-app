@@ -1,5 +1,6 @@
 import 'package:app/core/service_locator.dart';
 import 'package:app/services/notes.dart';
+import 'package:app/utils/date_formatter.dart';
 import 'package:app/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,6 +26,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
 
   final titleController = TextEditingController();
   final contentController = TextEditingController();
+
+  late String updatedAt = "";
 
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _contentFocus = FocusNode();
@@ -52,6 +55,9 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
       if (!mounted) return;
       titleController.text = data["title"] ?? "";
       contentController.text = data["content"] ?? "";
+
+      updatedAt = data["updated_at"] ?? "";
+
       setState(() => isLoading = false);
     } catch (e) {
       if (!mounted) return;
@@ -106,7 +112,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          "Delete Note",
+          "Delete Note?",
           style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w600),
         ),
         content: Text(
@@ -116,11 +122,15 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text("Cancel", style: GoogleFonts.outfit()),
+            child: Text("Cancel", style: GoogleFonts.outfit(fontSize: 16)),
           ),
+          SizedBox(width: 8),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text("Delete", style: GoogleFonts.outfit(color: Colors.red)),
+            child: Text(
+              "Delete",
+              style: GoogleFonts.outfit(color: Colors.red, fontSize: 16),
+            ),
           ),
         ],
       ),
@@ -199,14 +209,33 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                             size: 24,
                           ),
                         ),
+
+                        const SizedBox(width: 10),
                       ],
                     ],
                   ),
                 ),
 
+                !isEditing
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(22, 10, 22, 0),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Last updated: ${DateFormatter.toDateTime(updatedAt)}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: colorScheme.onSurface.withAlpha(125),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : SizedBox.shrink(),
+
                 // Title field
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 8, 22, 0),
+                  padding: const EdgeInsets.fromLTRB(18, 8, 22, 0),
                   child: TextField(
                     controller: titleController,
                     focusNode: _titleFocus,
@@ -238,7 +267,6 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 14),
 
                 // Content field
