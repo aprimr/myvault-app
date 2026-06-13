@@ -20,4 +20,5 @@ class AppRoutes {
 
   // Notes
   static const addNoteRoute = "/add-note";
+  static const viewNoteRoute = "/view-note";
 }

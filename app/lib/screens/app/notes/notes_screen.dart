@@ -240,7 +240,17 @@ class _NotesScreenState extends State<NotesScreen> {
                                     final color = ColorPallete.random();
 
                                     return GestureDetector(
-                                      onTap: () {},
+                                      onTap: () async {
+                                        var updated = await Navigator.pushNamed(
+                                          context,
+                                          AppRoutes.viewNoteRoute,
+                                          arguments: item["id"],
+                                        );
+
+                                        if (updated == true) {
+                                          _loadNotes();
+                                        }
+                                      },
                                       child: Card(
                                         color: color.withAlpha(24),
                                         elevation: 0,

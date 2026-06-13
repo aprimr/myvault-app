@@ -6,6 +6,7 @@ import 'package:app/screens/app/credentials/add_credential_screen.dart';
 import 'package:app/screens/app/credentials/view_credential_screen.dart';
 import 'package:app/screens/app/home_layout.dart';
 import 'package:app/screens/app/notes/add_note_screen.dart';
+import 'package:app/screens/app/notes/view_note_screen.dart';
 import 'package:app/screens/auth/enter_pin_screen.dart';
 import 'package:app/screens/auth/login_screen.dart';
 import 'package:app/screens/auth/post_login_router.dart';
@@ -73,6 +74,10 @@ class MyApp extends StatelessWidget {
 
         // Notes
         AppRoutes.addNoteRoute: (context) => AddNoteScreen(),
+        AppRoutes.viewNoteRoute: (context) {
+          final id = ModalRoute.of(context)!.settings.arguments as String;
+          return ViewNoteScreen(noteId: id);
+        },
       },
     );
   }
