@@ -8,7 +8,7 @@ class DateFormatter {
     try {
       final date = DateTime.parse(dateStr).toLocal();
 
-      return DateFormat('dd MMM yyyy').format(date);
+      return DateFormat('yyyy MMM dd').format(date);
     } catch (e) {
       return dateStr;
     }

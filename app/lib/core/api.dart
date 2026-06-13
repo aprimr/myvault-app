@@ -50,6 +50,13 @@ class ApiClient {
   Future<Response> put(String path, dynamic data) => dio.put(path, data: data);
   Future<Response> patch(String path, dynamic data) =>
       dio.patch(path, data: data);
-
   Future<Response> delete(String path) => dio.delete(path);
+
+  Future<Response> putForm(String path, FormData data) async {
+    return await dio.put(
+      path,
+      data: data,
+      options: Options(contentType: "multipart/form-data"),
+    );
+  }
 }

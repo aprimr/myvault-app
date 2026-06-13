@@ -12,7 +12,7 @@ class SecureStorage {
   }
 
   Future<void> clear() async {
-    await _storage.deleteAll();
+    await _storage.delete(key: "token");
   }
 }
 
@@ -28,6 +28,6 @@ class AppPin {
   }
 
   Future<void> clear() async {
-    await _storage.deleteAll();
+    await _storage.delete(key: "app_pin");
   }
 }
