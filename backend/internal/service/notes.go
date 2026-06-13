@@ -83,7 +83,7 @@ func GetNotesByID(ctx context.Context, db *pgxpool.Pool, uid, id string) (*model
 		return nil, err
 	}
 
-	content, err := util.Encrypt(notes.Content, key)
+	content, err := util.Decrypt(notes.Content, key)
 	if err != nil {
 		return nil, err
 	}
