@@ -1,4 +1,5 @@
 import 'package:app/core/color_pallete.dart';
+import 'package:app/core/routes.dart';
 import 'package:app/core/service_locator.dart';
 import 'package:app/services/notes.dart';
 import 'package:flutter/material.dart';
@@ -182,7 +183,17 @@ class _NotesScreenState extends State<NotesScreen> {
                                               ),
                                               const SizedBox(height: 38),
                                               FilledButton.icon(
-                                                onPressed: () {},
+                                                onPressed: () async {
+                                                  var isAdded =
+                                                      await Navigator.pushNamed(
+                                                        context,
+                                                        AppRoutes.addNoteRoute,
+                                                      );
+
+                                                  if (isAdded == true) {
+                                                    _loadNotes();
+                                                  }
+                                                },
                                                 icon: const Icon(
                                                   Icons.add,
                                                   size: 24,
@@ -244,19 +255,12 @@ class _NotesScreenState extends State<NotesScreen> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              HugeIcon(
-                                                icon:
-                                                    HugeIcons.strokeRoundedNote,
-                                                color: color,
-                                                size: 26,
-                                              ),
-                                              const SizedBox(height: 12),
                                               Text(
                                                 item["title"] ?? "",
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: GoogleFonts.poppins(
-                                                  fontSize: 17,
+                                                  fontSize: 19,
                                                   fontWeight: FontWeight.w500,
                                                   color: colorScheme.onSurface,
                                                 ),
@@ -266,11 +270,11 @@ class _NotesScreenState extends State<NotesScreen> {
                                                 const SizedBox(height: 6),
                                                 Text(
                                                   item["content"] ?? "",
-                                                  maxLines: 5,
+                                                  maxLines: 7,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: GoogleFonts.poppins(
-                                                    fontSize: 12,
+                                                    fontSize: 14,
                                                     color: colorScheme.onSurface
                                                         .withAlpha(200),
                                                   ),
@@ -292,7 +296,16 @@ class _NotesScreenState extends State<NotesScreen> {
           floatingActionButton: notes.isEmpty
               ? null
               : FloatingActionButton.extended(
-                  onPressed: () {},
+                  onPressed: () async {
+                    var isAdded = await Navigator.pushNamed(
+                      context,
+                      AppRoutes.addNoteRoute,
+                    );
+
+                    if (isAdded == true) {
+                      _loadNotes();
+                    }
+                  },
                   elevation: 0,
                   hoverElevation: 0,
                   backgroundColor: colorScheme.primary,
