@@ -308,9 +308,11 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(width: 10),
 
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.aboutAppRoute);
+              },
               child: Text(
-                "Verify Account",
+                "About",
                 style: GoogleFonts.poppins(
                   color: colorScheme.primary,
                   fontSize: 16,

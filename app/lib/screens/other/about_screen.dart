@@ -183,6 +183,13 @@ class AboutScreen extends StatelessWidget {
                   ),
                   _buildFaqItem(
                     context,
+                    question:
+                        "How do I verify my email if I missed it during registration?",
+                    answer:
+                        "Simply navigate to the login screen, click on the 'Forgot Password'.Enter your email address and click 'Continue' and verify the OTP sent to your email.  Once you verify the OTP, choose a new password (or enter your original password again) to mark your email profile successfully verified.",
+                  ),
+                  _buildFaqItem(
+                    context,
                     question: "How do I wipe my data permanently?",
                     answer:
                         "Email your deletion request to support@myvault.com. We will systematically remove all account rows, notes, keys, and Cloudinary media assets within 72 hours.",
