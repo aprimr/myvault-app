@@ -489,12 +489,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                         ),
 
-                        _ActionTile(
-                          icon: HugeIcons.strokeRoundedMailEdit01,
-                          label: "Update Email",
-                          onTap: () {},
-                        ),
-
                         const SizedBox(height: 16),
 
                         // App Actions

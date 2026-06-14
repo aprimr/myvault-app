@@ -17,19 +17,33 @@ class SettingService {
     });
   }
 
-  Future<void> changeEmail({required String newEmail}) async {
-    await api.put("/me/email", {"email": newEmail});
+  Future<Map<String, dynamic>> forgotPassword({required String email}) async {
+    final res = await api.post("/auth/forgot-password", {"email": email});
+    return res.data["data"] as Map<String, dynamic>;
   }
 
-  Future<void> verifyNewEmail({
+  Future<Map<String, dynamic>> verifyForgotPasswordOtp({
     required String uid,
     required String otp,
-    String purpose = "change_email",
+    String purpose = "forgot_password",
   }) async {
-    await api.post("/auth/verify-otp", {
+    final res = await api.post("/auth/verify-otp", {
       "uid": uid,
       "otp": otp,
       "purpose": purpose,
+    });
+    return res.data["data"] as Map<String, dynamic>;
+  }
+
+  Future<void> setNewPassword({
+    required String uid,
+    required String otpId,
+    required String newPassword,
+  }) async {
+    await api.post("/auth/set-new-password", {
+      "uid": uid,
+      "otp_id": otpId,
+      "password": newPassword,
     });
   }
 }

@@ -9,13 +9,16 @@ import 'package:app/screens/app/documents/view_document_screen.dart';
 import 'package:app/screens/app/home_layout.dart';
 import 'package:app/screens/app/notes/add_note_screen.dart';
 import 'package:app/screens/app/notes/view_note_screen.dart';
-import 'package:app/screens/app/profile/change_password_screen.dart';
+import 'package:app/screens/app/setting/change_password_screen.dart';
 import 'package:app/screens/auth/enter_pin_screen.dart';
+import 'package:app/screens/auth/forgot_password_screen.dart';
 import 'package:app/screens/auth/login_screen.dart';
 import 'package:app/screens/auth/post_login_router.dart';
+import 'package:app/screens/auth/set_new_password_screen.dart';
 import 'package:app/screens/auth/setup_pin_screen.dart';
 import 'package:app/screens/auth/signup_screen.dart';
 import 'package:app/screens/auth/verify_account_screen.dart';
+import 'package:app/screens/auth/verify_password_otp_screen.dart';
 import 'package:app/screens/welcome/splash_screen.dart';
 import 'package:app/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -63,6 +66,26 @@ class MyApp extends StatelessWidget {
                   as Map<String, dynamic>;
 
           return VerifyAccountScreen(email: args["email"], uid: args["uid"]);
+        },
+
+        AppRoutes.forgotPasswordRoute: (context) =>
+            const ForgotPasswordScreen(),
+
+        AppRoutes.verifyForgotPasswordRoute: (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+          return VerifyForgotPasswordScreen(
+            email: args["email"],
+            uid: args["uid"],
+          );
+        },
+
+        AppRoutes.setNewPasswordRoute: (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+          return SetNewPasswordScreen(uid: args["uid"], otpId: args["otpId"]);
         },
 
         // Protected routes

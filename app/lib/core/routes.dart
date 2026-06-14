@@ -10,6 +10,8 @@ class AppRoutes {
   static const signupRoute = "/signup";
   static const verifyAccountRoute = "/verify-account";
   static const forgotPasswordRoute = "/forgot-password";
+  static const verifyForgotPasswordRoute = "/verify-forgot-password";
+  static const setNewPasswordRoute = "/set-new-password";
 
   // Protected Route
   static const homeRoute = "/home";
