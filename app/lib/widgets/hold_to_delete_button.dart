@@ -36,7 +36,7 @@ class _HoldToDeleteButtonState extends State<HoldToDeleteButton> {
         return widget.text;
 
       case HoldDeleteState.armed:
-        return "Hold button to delete credential";
+        return "Hold button to ${widget.text.toLowerCase()}";
 
       case HoldDeleteState.holding:
         return "[${(_progress * 100).toInt()}%] This action is irreversible ";

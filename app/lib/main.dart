@@ -4,6 +4,8 @@ import 'package:app/core/service_locator.dart';
 import 'package:app/core/theme.dart';
 import 'package:app/screens/app/credentials/add_credential_screen.dart';
 import 'package:app/screens/app/credentials/view_credential_screen.dart';
+import 'package:app/screens/app/documents/add_document_screen.dart';
+import 'package:app/screens/app/documents/view_document_screen.dart';
 import 'package:app/screens/app/home_layout.dart';
 import 'package:app/screens/app/notes/add_note_screen.dart';
 import 'package:app/screens/app/notes/view_note_screen.dart';
@@ -77,6 +79,13 @@ class MyApp extends StatelessWidget {
         AppRoutes.viewNoteRoute: (context) {
           final id = ModalRoute.of(context)!.settings.arguments as String;
           return ViewNoteScreen(noteId: id);
+        },
+
+        // Document
+        AppRoutes.addDocumentRoute: (context) => AddDocumentScreen(),
+        AppRoutes.viewDocumentRoute: (context) {
+          final id = ModalRoute.of(context)!.settings.arguments as String;
+          return ViewDocumentScreen(documentId: id);
         },
       },
     );

@@ -511,10 +511,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: HugeIcons.strokeRoundedLogout01,
                           label: "Log Out",
                           color: colorScheme.error,
-                          onTap: () => authService.logout(),
+                          onTap: () {
+                            authService.logout();
+                            _loadProfile();
+                          },
                         ),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 4),
                       ],
                     ),
                   ),
