@@ -481,7 +481,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _ActionTile(
                           icon: HugeIcons.strokeRoundedLockPassword,
                           label: "Change Password",
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.changePasswordRoute,
+                            );
+                          },
                         ),
 
                         _ActionTile(

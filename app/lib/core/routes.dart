@@ -25,4 +25,7 @@ class AppRoutes {
   // Document
   static const addDocumentRoute = "/add-document";
   static const viewDocumentRoute = "/view-document";
+
+  // Setting
+  static const changePasswordRoute = "/change-password";
 }

@@ -9,6 +9,7 @@ import 'package:app/screens/app/documents/view_document_screen.dart';
 import 'package:app/screens/app/home_layout.dart';
 import 'package:app/screens/app/notes/add_note_screen.dart';
 import 'package:app/screens/app/notes/view_note_screen.dart';
+import 'package:app/screens/app/profile/change_password_screen.dart';
 import 'package:app/screens/auth/enter_pin_screen.dart';
 import 'package:app/screens/auth/login_screen.dart';
 import 'package:app/screens/auth/post_login_router.dart';
@@ -87,6 +88,9 @@ class MyApp extends StatelessWidget {
           final id = ModalRoute.of(context)!.settings.arguments as String;
           return ViewDocumentScreen(documentId: id);
         },
+
+        // Setting
+        AppRoutes.changePasswordRoute: (context) => ChangePasswordScreen(),
       },
     );
   }
