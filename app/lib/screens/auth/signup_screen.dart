@@ -322,9 +322,11 @@ class _SignupScreenState extends State<SignupScreen> {
             SizedBox(width: 10),
 
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.aboutAppRoute);
+              },
               child: Text(
-                "Get Help",
+                "About",
                 style: GoogleFonts.poppins(
                   color: colorScheme.primary,
                   fontSize: 16,

@@ -19,6 +19,7 @@ import 'package:app/screens/auth/setup_pin_screen.dart';
 import 'package:app/screens/auth/signup_screen.dart';
 import 'package:app/screens/auth/verify_account_screen.dart';
 import 'package:app/screens/auth/verify_password_otp_screen.dart';
+import 'package:app/screens/other/about_screen.dart';
 import 'package:app/screens/welcome/splash_screen.dart';
 import 'package:app/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
         // Splash & welcome
         AppRoutes.splashRoute: (context) => SplashScreen(),
         AppRoutes.welcomeRoute: (context) => WelcomeScreen(),
+        AppRoutes.aboutAppRoute: (context) => AboutScreen(),
 
         // Pin
         AppRoutes.postLoginRoute: (context) => PostLoginRouter(),

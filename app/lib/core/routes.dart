@@ -1,6 +1,7 @@
 class AppRoutes {
-  static const splashRoute = "/splash";
   static const welcomeRoute = "/";
+  static const splashRoute = "/splash";
+  static const aboutAppRoute = "/about";
 
   static const postLoginRoute = "/post-login";
   static const setupPinRoute = "/setup-pin";
