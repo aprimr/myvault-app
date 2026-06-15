@@ -53,7 +53,7 @@ func main() {
 	// Routes
 	r.Route("/api", func(r chi.Router) {
 
-		r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		r.Head("/ping", func(w http.ResponseWriter, r *http.Request) {
 			response.JSON(w, http.StatusOK, "Pong", nil)
 		})
 
