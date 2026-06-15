@@ -22,7 +22,7 @@ func main() {
 	// Load env
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalln("Failed to load env")
+		log.Print("Failed to load env")
 	}
 
 	// Init logger
