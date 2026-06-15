@@ -30,18 +30,18 @@ Your privacy is the most important part of this project. Here is how your data s
 
 ## Screenshots
 
-<p align="center">
-  <img src="screenshots/1_login.jpg" width="23%" alt="Login Screen" />
+<p align="left">
+  <img src="screenshots/1_login.jpg" width="22%" alt="Login Screen" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/2_Pin.jpg" width="23%" alt="Enter PIN Screen" />
+  <img src="screenshots/2_Pin.jpg" width="22%" alt="Enter PIN Screen" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/3_credential.jpg" width="23%" alt="Credentials Screen" />
+  <img src="screenshots/3_credential.jpg" width="22%" alt="Credentials Screen" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/4_view_credential.jpg" width="23%" alt="View Credentials Screen" />
+  <img src="screenshots/4_view_credential.jpg" width="22%" alt="View Credentials Screen" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/5_notes.jpg" width="23%" alt="Notes Screen" />
+  <img src="screenshots/5_notes.jpg" width="22%" alt="Notes Screen" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/6_documents.jpg" width="23%" alt="Documents Screen" />
+  <img src="screenshots/6_documents.jpg" width="22%" alt="Documents Screen" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/7_profile.jpg" width="23%" alt="Profile Screen" />
+  <img src="screenshots/7_profile.jpg" width="22%" alt="Profile Screen" />
 </p>
