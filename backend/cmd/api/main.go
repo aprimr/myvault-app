@@ -110,9 +110,13 @@ func main() {
 	})
 
 	// Spin up server
-	port := ":" + os.Getenv("PORT")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	addr := ":" + port
 	logger.Info("Server started at PORT" + port)
-	err = http.ListenAndServe(port, r)
+	err = http.ListenAndServe(addr, r)
 	if err != nil {
 		logger.Fatal("Failed to start server", err)
 	}
