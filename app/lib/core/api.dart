@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class ApiClient {
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "http://192.168.100.30:8000/api",
+      baseUrl: "https://myvault-backend-tdp1.onrender.com/api",
       headers: {"Content-Type": "application/json"},
     ),
   );

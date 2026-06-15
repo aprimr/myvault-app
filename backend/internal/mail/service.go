@@ -27,7 +27,7 @@ func (s *Service) newClient() (*mail.Client, error) {
 		mail.WithSMTPAuth(mail.SMTPAuthPlain),
 		mail.WithUsername(s.cfg.User),
 		mail.WithPassword(s.cfg.Password),
-		mail.WithTLSPolicy(mail.TLSOpportunistic),
+		mail.WithTLSPolicy(mail.TLSMandatory),
 	)
 }
 
