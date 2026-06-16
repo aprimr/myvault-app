@@ -1,26 +1,15 @@
 package config
 
-import (
-	"os"
-	"strconv"
-)
+import "os"
 
 type MailConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	From     string
+	BrevoAPIKey string
+	From        string
 }
 
 func LoadMailConfig() MailConfig {
-	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
-
 	return MailConfig{
-		Host:     os.Getenv("SMTP_HOST"),
-		Port:     port,
-		User:     os.Getenv("SMTP_USER"),
-		Password: os.Getenv("SMTP_PASS"),
-		From:     os.Getenv("SMTP_FROM"),
+		BrevoAPIKey: os.Getenv("BREVO_API_KEY"),
+		From:        os.Getenv("SMTP_FROM"),
 	}
 }

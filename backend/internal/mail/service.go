@@ -1,193 +1,125 @@
 package mail
 
 import (
-	"context"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/aprimr/myvault/internal/config"
-	"github.com/wneessen/go-mail"
 )
 
 type Service struct {
-	cfg  config.MailConfig
-	from string
+	apiKey string
+	from   string
 }
 
 func New(cfg config.MailConfig) *Service {
 	return &Service{
-		cfg:  cfg,
-		from: cfg.From,
+		apiKey: cfg.BrevoAPIKey,
+		from:   cfg.From,
 	}
 }
 
-func (s *Service) newClient() (*mail.Client, error) {
-	return mail.NewClient(
-		s.cfg.Host,
-		mail.WithPort(s.cfg.Port),
-		mail.WithSMTPAuth(mail.SMTPAuthPlain),
-		mail.WithUsername(s.cfg.User),
-		mail.WithPassword(s.cfg.Password),
-		mail.WithTLSPolicy(mail.TLSMandatory),
-	)
+func (s *Service) send(to, subject, html string) error {
+	url := "https://api.brevo.com/v3/smtp/email"
+
+	payload := map[string]any{
+		"sender": map[string]string{
+			"name":  "MyVault",
+			"email": extractEmail(s.from),
+		},
+		"to": []map[string]string{
+			{"email": to},
+		},
+		"subject":     subject,
+		"htmlContent": html,
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("api-key", s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("brevo error: status %s", resp.Status)
+	}
+
+	return nil
+}
+
+func extractEmail(from string) string {
+	start := -1
+	for i, c := range from {
+		if c == '<' {
+			start = i + 1
+		}
+		if c == '>' {
+			return from[start:i]
+		}
+	}
+	return from
 }
 
 func (s *Service) SendOTP(name, to, otp string) error {
-	msg := mail.NewMsg()
-
-	if err := msg.From(s.from); err != nil {
-		return err
-	}
-	if err := msg.To(to); err != nil {
-		return err
-	}
-
-	msg.Subject("MyVault account verification")
-	msg.SetBodyString(mail.TypeTextHTML, buildOTPMailBody(name, otp))
-
-	c, err := s.newClient()
-	if err != nil {
-		return err
-	}
-
-	if err := c.DialWithContext(context.Background()); err != nil {
-		return fmt.Errorf("smtp dial failed: %w", err)
-	}
-	defer c.Close()
-
-	return c.Send(msg)
+	return s.send(
+		to,
+		"MyVault account verification",
+		buildOTPMailBody(name, otp),
+	)
 }
 
 func (s *Service) SendLoginAlert(name, to, loginTime string) error {
-	msg := mail.NewMsg()
-
-	if err := msg.From(s.from); err != nil {
-		return err
-	}
-
-	if err := msg.To(to); err != nil {
-		return err
-	}
-
-	msg.Subject("New login to your MyVault account")
-	msg.SetBodyString(mail.TypeTextHTML, buildLoginAlertMailBody(name, loginTime))
-
-	c, err := s.newClient()
-	if err != nil {
-		return err
-	}
-
-	if err := c.DialWithContext(context.Background()); err != nil {
-		return fmt.Errorf("smtp dial failed: %w", err)
-	}
-	defer c.Close()
-
-	return c.Send(msg)
+	return s.send(
+		to,
+		"New login to your MyVault account",
+		buildLoginAlertMailBody(name, loginTime),
+	)
 }
 
 func (s *Service) SendForgotPasswordOTP(name, to, otp string) error {
-	msg := mail.NewMsg()
-
-	if err := msg.From(s.from); err != nil {
-		return err
-	}
-
-	if err := msg.To(to); err != nil {
-		return err
-	}
-
-	msg.Subject("Reset your MyVault password")
-	msg.SetBodyString(mail.TypeTextHTML, buildForgotPasswordOTPMailBody(name, otp))
-
-	c, err := s.newClient()
-	if err != nil {
-		return err
-	}
-
-	if err := c.DialWithContext(context.Background()); err != nil {
-		return fmt.Errorf("smtp dial failed: %w", err)
-	}
-	defer c.Close()
-
-	return c.Send(msg)
+	return s.send(
+		to,
+		"Reset your MyVault password",
+		buildForgotPasswordOTPMailBody(name, otp),
+	)
 }
 
 func (s *Service) SendChangeEmailOTP(name, to, otp string) error {
-	msg := mail.NewMsg()
-
-	if err := msg.From(s.from); err != nil {
-		return err
-	}
-
-	if err := msg.To(to); err != nil {
-		return err
-	}
-
-	msg.Subject("Verify your email address")
-	msg.SetBodyString(mail.TypeTextHTML, buildChangeEmailOTPMailBody(name, otp))
-
-	c, err := s.newClient()
-	if err != nil {
-		return err
-	}
-
-	if err := c.DialWithContext(context.Background()); err != nil {
-		return fmt.Errorf("smtp dial failed: %w", err)
-	}
-	defer c.Close()
-
-	return c.Send(msg)
+	return s.send(
+		to,
+		"Verify your email address",
+		buildChangeEmailOTPMailBody(name, otp),
+	)
 }
 
 func (s *Service) SendChangeEmailAlert(name, to, newEmail, time string) error {
-	msg := mail.NewMsg()
-
-	if err := msg.From(s.from); err != nil {
-		return err
-	}
-
-	if err := msg.To(to); err != nil {
-		return err
-	}
-
-	msg.Subject("Your email address was changed")
-	msg.SetBodyString(mail.TypeTextHTML, buildChangeEmailAlertMailBody(name, newEmail, time))
-
-	c, err := s.newClient()
-	if err != nil {
-		return err
-	}
-
-	if err := c.DialWithContext(context.Background()); err != nil {
-		return fmt.Errorf("smtp dial failed: %w", err)
-	}
-	defer c.Close()
-
-	return c.Send(msg)
+	return s.send(
+		to,
+		"Your email address was changed",
+		buildChangeEmailAlertMailBody(name, newEmail, time),
+	)
 }
 
 func (s *Service) SendChangedPasswordAlert(name, to, time string) error {
-	msg := mail.NewMsg()
-
-	if err := msg.From(s.from); err != nil {
-		return err
-	}
-
-	if err := msg.To(to); err != nil {
-		return err
-	}
-
-	msg.Subject("Your password was changed")
-	msg.SetBodyString(mail.TypeTextHTML, buildChangedPasswordAlertMailBody(name, time))
-
-	c, err := s.newClient()
-	if err != nil {
-		return err
-	}
-
-	if err := c.DialWithContext(context.Background()); err != nil {
-		return fmt.Errorf("smtp dial failed: %w", err)
-	}
-	defer c.Close()
-
-	return c.Send(msg)
+	return s.send(
+		to,
+		"Your password was changed",
+		buildChangedPasswordAlertMailBody(name, time),
+	)
 }
